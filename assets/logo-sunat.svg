@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 370 85" width="370" height="85">
+  <defs>
+    <linearGradient id="sunatBlueGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#083A62"/>
+      <stop offset="100%" stop-color="#0a4675"/>
+    </linearGradient>
+    <linearGradient id="sunatRedGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#B13030"/>
+      <stop offset="100%" stop-color="#c93838"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Logo emblem: stylized rhombus with blue/red facets and white S -->
+  <g transform="translate(14, 8)">
+    <!-- Left red facet -->
+    <path d="M 32 0 L 0 34 L 16 51 L 48 17 Z" fill="url(#sunatRedGrad)" />
+    <!-- Right blue facet -->
+    <path d="M 48 17 L 16 51 L 32 68 L 64 34 Z" fill="url(#sunatBlueGrad)" />
+    <!-- Overlapping stylized diamond shadow/depth -->
+    <polygon points="32,2 62,34 32,66 2,34" fill="none" stroke="#FFFFFF" stroke-width="1.5" opacity="0.3"/>
+    
+    <!-- White stylized 'S' in center -->
+    <text x="32" y="44" 
+          font-family="'Roboto', 'Arial Black', sans-serif" 
+          font-size="34" 
+          font-weight="900" 
+          fill="#FFFFFF" 
+          text-anchor="middle"
+          dominant-baseline="middle"
+          style="text-shadow: 0 1px 2px rgba(0,0,0,0.35);">S</text>
+  </g>
+
+  <!-- SUNAT Text -->
+  <text x="92" y="47" 
+        font-family="'Roboto', 'Arial', sans-serif" 
+        font-size="44" 
+        font-weight="900" 
+        letter-spacing="2" 
+        fill="#083A62">SUNAT</text>
+
+  <!-- Blue divider line -->
+  <line x1="92" y1="58" x2="356" y2="58" stroke="#083A62" stroke-width="2.5" stroke-linecap="round"/>
+
+  <!-- Diminutive subtitle text - fully guaranteed to never truncate -->
+  <text x="92" y="70" 
+        font-family="'Roboto', 'Arial', sans-serif" 
+        font-size="7" 
+        font-weight="700" 
+        letter-spacing="0.15" 
+        fill="#083A62"
+        textLength="262"
+        lengthAdjust="spacingAndGlyphs">SUPERINTENDENCIA NACIONAL DE ADMINISTRACIÓN TRIBUTARIA</text>
+</svg>

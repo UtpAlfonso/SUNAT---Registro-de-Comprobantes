@@ -1,0 +1,6 @@
+{
+  "name": "Lotería SUNAT – Módulo del Participante",
+  "description": "Prototipo web interactivo de escritorio de la Lotería SUNAT para registro y consulta de comprobantes de pago de los participantes.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

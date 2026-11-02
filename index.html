@@ -1,0 +1,2019 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lotería SUNAT – Módulo del Participante</title>
+  <meta name="description" content="Prototipo web interactivo de escritorio de la Lotería SUNAT para registro y consulta de comprobantes de pago de los participantes.">
+  <meta property="og:title" content="Lotería SUNAT – Módulo del Participante">
+  <meta property="og:description" content="Prototipo web interactivo de escritorio de la Lotería SUNAT para registro y consulta de comprobantes de pago de los participantes.">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <!-- Tipografía Roboto oficial -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+  <!-- Hoja de estilos -->
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+
+  <!-- Contenedor adaptativo centrado con escalado proporcional de escritorio -->
+  <div id="stage-container">
+    <div id="stage-viewport">
+
+      <!-- Notificación Flotante interactiva (Estilo Imágenes 1 y 2) -->
+      <div id="notif-toast" class="notif-card-flotante notif-verde" role="status" aria-live="polite">
+        <div class="notif-icono-wrapper" id="notif-icono-box">
+          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="16 9 10 15 7 12"></polyline>
+          </svg>
+        </div>
+        <div class="notif-textos">
+          <div class="notif-titulo" id="notif-titulo">Datos Registrados</div>
+          <div class="notif-subtitulo" id="notif-subtitulo">Se le Renviará al siguiente paso</div>
+        </div>
+      </div>
+
+      <!-- Barra Rápida de Accesibilidad y Tamaño de Letra (Accesible en todas las pantallas) -->
+      <div class="barra-accesibilidad-rapida" aria-label="Ajuste rápido de tamaño de texto">
+        <span class="acc-rapida-icono">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v4"></path><path d="M12 16h.01"></path></svg>
+          Letra:
+        </span>
+        <div class="acc-rapida-grupo">
+          <button type="button" class="btn-acc-font" id="btn-acc-pequeno" onclick="cambiarTamanoLetra('pequeno', null)" title="Letra Pequeña (88%)">A-</button>
+          <button type="button" class="btn-acc-font activo" id="btn-acc-normal" onclick="cambiarTamanoLetra('normal', null)" title="Letra Normal (100%)">A</button>
+          <button type="button" class="btn-acc-font" id="btn-acc-grande" onclick="cambiarTamanoLetra('grande', null)" title="Letra Grande (118%)">A+</button>
+          <button type="button" class="btn-acc-font" id="btn-acc-muygrande" onclick="cambiarTamanoLetra('muygrande', null)" title="Letra Muy Grande (135%)">A++</button>
+        </div>
+      </div>
+
+      <!-- ====================================================================
+           1) PANTALLA: LOGIN (stage 1280 x 969)
+           ==================================================================== -->
+      <section id="pantalla-login" class="stage active" aria-label="Acceso a la Lotería SUNAT">
+        <div class="sunat-logo-top" onclick="navigate('pantalla-login')" role="banner" aria-label="Logo SUNAT">
+          <img src="./assets/logo-sunat.svg" alt="SUNAT - Superintendencia Nacional de Administración Tributaria">
+        </div>
+
+        <div class="tarjeta-base card-login">
+          <div class="login-header">
+            <h1 class="login-header-title">ACCESO A LA LOTERÍA SUNAT</h1>
+            <p class="login-header-subtitle">Indentifiquese para Participar</p>
+          </div>
+
+          <form id="form-login" onsubmit="handleLoginSubmit(event)" autocomplete="off">
+            <label for="login-usuario" class="login-label" style="left: 29px; top: 104px;">Usuario</label>
+            <div class="login-input-wrapper" style="left: 29px; top: 134px;">
+              <span class="login-icon-left">
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#083A62" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+              </span>
+              <input type="text" id="login-usuario" class="login-input" placeholder="Ingrese su DNI o RUC" value="72158118" required>
+              <span id="err-login-usuario" class="msg-error" style="left: 6px; top: 65px;"></span>
+            </div>
+
+            <label for="login-clave" class="login-label" style="left: 29px; top: 214px;">Clave</label>
+            <div class="login-input-wrapper" style="left: 29px; top: 244px;">
+              <span class="login-icon-left">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#083A62" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+              </span>
+              <input type="password" id="login-clave" class="login-input" placeholder="••••••••" value="Demo2026" required>
+              <button type="button" class="login-icon-right" onclick="togglePasswordVisibility('login-clave', this)" aria-label="Mostrar u ocultar contraseña">
+                <svg class="eye-closed" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#083A62" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                  <line x1="1" y1="1" x2="23" y2="23"></line>
+                </svg>
+                <svg class="eye-open" style="display:none;" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#083A62" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+              </button>
+              <span id="err-login-clave" class="msg-error" style="left: 6px; top: 65px;"></span>
+            </div>
+
+            <!-- Fila: Olvidé mi Contraseña y Recordarme -->
+            <div class="login-enlaces-fila" style="left: 29px; top: 322px; width: 429px; display: flex; justify-content: space-between; align-items: center;">
+              <a href="javascript:void(0)" class="login-link" onclick="handleForgotPassword()">Olvidé mi Contraseña</a>
+
+              <div class="login-checkbox-wrapper" onclick="toggleRememberCheckbox()">
+                <div class="custom-checkbox" id="chk-recordarme" role="checkbox" aria-checked="false" tabindex="0">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#083A62" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </div>
+                <span style="font-size: 14.5px; color: var(--negro); font-weight: 500;">Recordarme</span>
+              </div>
+            </div>
+
+            <!-- Botón de Acceso por Voz para Personas con Discapacidad -->
+            <button type="button" class="btn-acceso-voz-login" style="left: 29px; top: 358px; width: 429px;" onclick="abrirModalAccesoVoz()" aria-label="Iniciar sesión asistido por voz para personas con discapacidad">
+              <span class="icono-voz-pulso">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                  <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                  <line x1="12" y1="19" x2="12" y2="23"></line>
+                  <line x1="8" y1="23" x2="16" y2="23"></line>
+                </svg>
+              </span>
+              <span class="btn-acceso-voz-txt">
+                <strong>Acceso Asistido por Voz</strong>
+                <small>Accesibilidad / Discapacidad Visual</small>
+              </span>
+              <span class="badge-voz-sim">DISCAPACIDAD</span>
+            </button>
+
+            <button type="button" class="login-btn-google" style="left: 93px; top: 418px;" onclick="handleGoogleLogin()">
+              <svg width="20" height="20" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+              </svg>
+              <span>Iniciar Sesión con Google</span>
+            </button>
+
+            <button type="submit" class="login-btn-ingresar" style="left: 93px; top: 472px;">
+              INGRESAR
+            </button>
+
+            <div class="login-register-link" style="left: 0; top: 532px; width: 100%;" onclick="navigate('pantalla-registro-1')">
+              ¿No tienes cuenta? Regístrate Aquí
+            </div>
+          </form>
+        </div>
+      </section>
+
+
+      <!-- ====================================================================
+           2) REGISTRO – PASO 1: DATOS PERSONALES (stage 1280 x 832, Imagen 1)
+           ==================================================================== -->
+      <section id="pantalla-registro-1" class="stage" aria-label="Registro Paso 1: Datos Personales">
+        <div class="sunat-logo-top" onclick="navigate('pantalla-principal')">
+          <img src="./assets/logo-sunat.svg" alt="SUNAT">
+        </div>
+
+        <div class="tarjeta-base card-registro" style="left: 192px; top: 150px;">
+          <!-- Indicador de pasos -->
+          <div class="step-indicator-wrapper">
+            <div class="step-circle active" style="left: 8px; top: 12px;">1</div>
+            <div class="step-label" style="left: 62px; top: 12px;">Datos Personales</div>
+            <div class="step-line" style="left: 254px; top: 38px;"></div>
+
+            <div class="step-circle" style="left: 328px; top: 17px;">2</div>
+            <div class="step-label" style="left: 382px; top: 17px;">Datos de Contacto</div>
+            <div class="step-line" style="left: 584px; top: 38px;"></div>
+
+            <div class="step-circle" style="left: 658px; top: 15px;">3</div>
+            <div class="step-label" style="left: 724px; top: 15px;">Confirmación</div>
+          </div>
+
+          <div class="registro-banner-azul">
+            <h2 class="registro-banner-text">PASO 1: DATOS PERSONALES</h2>
+          </div>
+
+          <!-- Formulario según Imagen 1 -->
+          <form id="form-registro-1" onsubmit="handleRegistroPaso1(event)">
+            <!-- Columna Izquierda -->
+            <!-- Tipo de Documento -->
+            <label for="reg-tipo-doc" class="registro-label-22" style="left: 26px; top: 146px;">Tipo de Documento</label>
+            <select id="reg-tipo-doc" class="registro-select select-base" style="left: 26px; top: 174px; width: 394px;">
+              <option value="DNI" selected>DNI</option>
+              <option value="RUC">RUC</option>
+              <option value="Carnet de Extranjería">Carnet de Extranjería</option>
+              <option value="Pasaporte">Pasaporte</option>
+            </select>
+
+            <!-- Número de Docuemento -->
+            <label for="reg-num-doc" class="registro-label-22" style="left: 26px; top: 236px;">Número de Docuemento</label>
+            <div style="position: absolute; left: 26px; top: 264px; width: 394px; height: 48px;">
+              <svg style="position: absolute; left: 12px; top: 12px;" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#083A62" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+              <input type="text" id="reg-num-doc" class="input-base" style="width: 100%; height: 100%; padding-left: 46px; padding-right: 46px; font-size: 16px;" value="72158118" maxlength="11" required>
+              <svg style="position: absolute; right: 12px; top: 12px;" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#083A62" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                <line x1="1" y1="10" x2="23" y2="10"></line>
+              </svg>
+              <span id="err-reg-num-doc" class="msg-error" style="left: 4px; top: 51px;"></span>
+            </div>
+
+            <!-- Nombres -->
+            <label for="reg-nombres" class="registro-label-22" style="left: 26px; top: 326px;">Nombres</label>
+            <input type="text" id="reg-nombres" class="registro-input input-base" style="left: 26px; top: 354px; width: 394px;" value="Alfonso Valentino" required>
+
+            <!-- Apellido Materno -->
+            <label for="reg-ape-mat" class="registro-label-22" style="left: 26px; top: 416px;">Apellido Materno</label>
+            <input type="text" id="reg-ape-mat" class="registro-input input-base" style="left: 26px; top: 444px; width: 394px;" value="Gutiérrez" required>
+
+            <!-- Columna Derecha -->
+            <!-- Apellido Paterno -->
+            <label for="reg-ape-pat" class="registro-label-22" style="left: 484px; top: 146px;">Apellido Paterno</label>
+            <input type="text" id="reg-ape-pat" class="registro-input input-base" style="left: 484px; top: 174px; width: 394px;" value="Hernández" required>
+
+            <!-- Dígito Verificador & Fecha Emisión (Imagen 1) -->
+            <label for="reg-dig-verif" class="registro-label-22" style="left: 484px; top: 236px; font-size: 17px;">Dígito Verificador:</label>
+            <input type="text" id="reg-dig-verif" class="registro-input input-base" style="left: 484px; top: 264px; width: 170px;" value="4" maxlength="2">
+
+            <label for="reg-fec-emision" class="registro-label-22" style="left: 678px; top: 236px; font-size: 17px;">Fecha Emisión:</label>
+            <div style="position: absolute; left: 678px; top: 264px; width: 200px; height: 48px;">
+              <input type="date" id="reg-fec-emision" class="input-base" style="width: 100%; height: 100%; padding: 0 14px; font-size: 15px;" value="2022-03-10">
+            </div>
+
+            <!-- Fecha de Nacimiento -->
+            <label for="reg-fec-nac" class="registro-label-22" style="left: 484px; top: 326px;">Fecha de Nacimiento</label>
+            <div style="position: absolute; left: 484px; top: 354px; width: 394px; height: 48px;">
+              <input type="date" id="reg-fec-nac" class="input-base" style="width: 100%; height: 100%; padding: 0 16px; font-size: 16px;" value="1998-05-15" required>
+            </div>
+
+            <!-- Sexo -->
+            <label class="registro-label-22" style="left: 484px; top: 416px;">Sexo</label>
+            <div class="radio-item" style="left: 484px; top: 456px;" onclick="seleccionarSexo('Masculino')">
+              <div class="radio-circle checked" id="radio-sexo-masc"></div>
+              <span class="radio-label">Masculino</span>
+            </div>
+            <div class="radio-item" style="left: 624px; top: 456px;" onclick="seleccionarSexo('Femenino')">
+              <div class="radio-circle" id="radio-sexo-fem"></div>
+              <span class="radio-label">Femenino</span>
+            </div>
+            <div class="radio-item" style="left: 755px; top: 456px;" onclick="seleccionarSexo('Otro')">
+              <div class="radio-circle" id="radio-sexo-otro"></div>
+              <span class="radio-label">Otro</span>
+            </div>
+
+            <!-- Botones Limpiar y Validar -->
+            <button type="button" class="btn-limpiar" style="left: 130px; top: 546px;" onclick="limpiarFormularioRegistro1()">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              </svg>
+              <span>Limpiar</span>
+            </button>
+
+            <button type="submit" class="btn-validar-p1" style="left: 557px; top: 546px;">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="16 9 10 15 7 12"></polyline>
+              </svg>
+              <span>Validar</span>
+            </button>
+          </form>
+        </div>
+      </section>
+
+
+      <!-- ====================================================================
+           3) REGISTRO – PASO 2: DATOS DE CONTACTO
+           ==================================================================== -->
+      <section id="pantalla-registro-2" class="stage" aria-label="Registro Paso 2: Datos de Contacto">
+        <div class="sunat-logo-top" onclick="navigate('pantalla-principal')">
+          <img src="./assets/logo-sunat.svg" alt="SUNAT">
+        </div>
+
+        <div class="tarjeta-base card-registro" style="left: 187px; top: 148px;">
+          <div class="step-indicator-wrapper">
+            <div class="step-circle completed" style="left: 13px; top: 14px;">1</div>
+            <div class="step-label" style="left: 67px; top: 14px;">Datos Personales</div>
+            <div class="step-line active" style="left: 259px; top: 40px;"></div>
+
+            <div class="step-circle active" style="left: 333px; top: 19px;">2</div>
+            <div class="step-label" style="left: 387px; top: 19px;">Datos de Contacto</div>
+            <div class="step-line" style="left: 589px; top: 40px;"></div>
+
+            <div class="step-circle" style="left: 663px; top: 17px;">3</div>
+            <div class="step-label" style="left: 729px; top: 17px;">Confirmación</div>
+          </div>
+
+          <div class="registro-banner-azul">
+            <h2 class="registro-banner-text">PASO 2: DATOS DE CONTACTO</h2>
+          </div>
+
+          <form id="form-registro-2" onsubmit="handleRegistroPaso2(event)">
+            <!-- Columna Izquierda -->
+            <label for="reg-correo" class="registro-label-20" style="left: 29px; top: 146px;">Correo Electrónico</label>
+            <div style="position: absolute; left: 29px; top: 174px; width: 394px; height: 48px;">
+              <input type="email" id="reg-correo" class="input-base" style="width: 100%; height: 100%; padding-left: 16px; padding-right: 48px; font-size: 16px;" value="valentinohernandez27@gmail.com" required>
+              <svg style="position: absolute; right: 14px; top: 12px;" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                <polyline points="22,6 12,13 2,6"></polyline>
+              </svg>
+            </div>
+
+            <label for="reg-correo-rep" class="registro-label-20" style="left: 29px; top: 236px;">Repetir Correo Electrónico</label>
+            <div style="position: absolute; left: 29px; top: 264px; width: 394px; height: 48px;">
+              <input type="email" id="reg-correo-rep" class="input-base" style="width: 100%; height: 100%; padding-left: 16px; padding-right: 48px; font-size: 16px;" value="valentinohernandez27@gmail.com" required>
+              <svg style="position: absolute; right: 14px; top: 12px;" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                <polyline points="22,6 12,13 2,6"></polyline>
+              </svg>
+              <span id="err-reg-correo" class="msg-error" style="left: 4px; top: 51px;"></span>
+            </div>
+
+            <label for="reg-pass" class="registro-label-20" style="left: 29px; top: 326px;">Contraseña</label>
+            <div style="position: absolute; left: 29px; top: 354px; width: 394px; height: 48px;">
+              <svg style="position: absolute; left: 14px; top: 12px;" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#083A62" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+              <input type="password" id="reg-pass" class="input-base" style="width: 100%; height: 100%; padding-left: 48px; padding-right: 48px; font-size: 16px;" value="Demo2026" required>
+              <button type="button" style="position: absolute; right: 12px; top: 11px; background: none; border: none; padding: 2px;" onclick="togglePasswordVisibility('reg-pass', this)">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#083A62" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                  <line x1="1" y1="1" x2="23" y2="23"></line>
+                </svg>
+              </button>
+            </div>
+
+            <label for="reg-pass-rep" class="registro-label-20" style="left: 29px; top: 416px;">Repetir Contraseña</label>
+            <div style="position: absolute; left: 29px; top: 444px; width: 394px; height: 48px;">
+              <svg style="position: absolute; left: 14px; top: 12px;" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#083A62" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+              <input type="password" id="reg-pass-rep" class="input-base" style="width: 100%; height: 100%; padding-left: 48px; padding-right: 48px; font-size: 16px;" value="Demo2026" required>
+              <button type="button" style="position: absolute; right: 12px; top: 11px; background: none; border: none; padding: 2px;" onclick="togglePasswordVisibility('reg-pass-rep', this)">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#083A62" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                  <line x1="1" y1="1" x2="23" y2="23"></line>
+                </svg>
+              </button>
+              <span id="err-reg-pass" class="msg-error" style="left: 4px; top: 51px;"></span>
+            </div>
+
+            <!-- Columna Derecha -->
+            <label for="reg-preg-sec" class="registro-label-20" style="left: 487px; top: 146px;">Pregunta Secreta</label>
+            <input type="text" id="reg-preg-sec" class="registro-input input-base" style="left: 487px; top: 174px; width: 373px;" value="¿Nombre de su Mejor amigo?" required>
+
+            <label for="reg-resp-sec" class="registro-label-20" style="left: 487px; top: 236px;">Respuesta Secreta</label>
+            <input type="text" id="reg-resp-sec" class="registro-input input-base" style="left: 487px; top: 264px; width: 373px;" value="Alejandro" required>
+
+            <ul class="vinetas-seguridad" style="left: 486px; top: 334px; width: 374px;">
+              <li>Deberá responder a esta pregunta cuando solicite generar una nueva clave por olvido.</li>
+              <li>La respuesta deberá contener una información que difícilmente una persona puede saber o adivinar.</li>
+              <li>La pregunta y la respuesta no deberán contener tildes, ni letras Ñ.</li>
+            </ul>
+
+            <button type="submit" class="btn-validar-p2" style="left: 584px; top: 468px;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="16 9 10 15 7 12"></polyline>
+              </svg>
+              <span>Validar</span>
+            </button>
+
+            <button type="button" class="btn-atras-p2" style="left: 584px; top: 536px;" onclick="navigate('pantalla-registro-1')">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+              </svg>
+              <span>Atrás</span>
+            </button>
+          </form>
+        </div>
+      </section>
+
+
+      <!-- ====================================================================
+           4) REGISTRO – PASO 3: CONFIRMACIÓN
+           ==================================================================== -->
+      <section id="pantalla-registro-3" class="stage" aria-label="Registro Paso 3: Confirmación">
+        <div class="sunat-logo-top" onclick="navigate('pantalla-principal')">
+          <img src="./assets/logo-sunat.svg" alt="SUNAT">
+        </div>
+
+        <div class="tarjeta-base card-registro" style="left: 192px; top: 150px;">
+          <div class="step-indicator-wrapper">
+            <div class="step-circle completed" style="left: 8px; top: 12px;">1</div>
+            <div class="step-label" style="left: 62px; top: 12px;">Datos Personales</div>
+            <div class="step-line completed" style="left: 254px; top: 38px;"></div>
+
+            <div class="step-circle completed" style="left: 328px; top: 17px;">2</div>
+            <div class="step-label" style="left: 382px; top: 17px;">Datos de Contacto</div>
+            <div class="step-line completed" style="left: 584px; top: 38px;"></div>
+
+            <div class="step-circle completed" style="left: 658px; top: 15px;">3</div>
+            <div class="step-label" style="left: 724px; top: 15px;">Confirmación</div>
+          </div>
+
+          <div class="registro-banner-verde">
+            <h2 class="registro-banner-text">Registro Completado</h2>
+          </div>
+
+          <h3 class="p3-subtitulo" style="left: 28px; top: 148px;">Datos Personales</h3>
+
+          <div class="p3-dato-linea" style="left: 28px; top: 198px;">
+            <span class="p3-dato-bold">Nombres: </span>Alfonso Valentino
+          </div>
+          <div class="p3-dato-linea" style="left: 28px; top: 236px;">
+            <span class="p3-dato-bold">Apellido Paterno: </span>Hernández
+          </div>
+          <div class="p3-dato-linea" style="left: 28px; top: 274px;">
+            <span class="p3-dato-bold">Apellido Materno: </span>Gutiérrez
+          </div>
+          <div class="p3-dato-linea" style="left: 28px; top: 312px;">
+            <span class="p3-dato-bold">DNI: </span>72158118
+          </div>
+          <div class="p3-dato-linea p3-dato-bold" style="left: 28px; top: 350px;">
+            Correo Electrónico:
+          </div>
+          <div class="p3-dato-linea" style="left: 28px; top: 386px;">
+            valentinohernandez27@gmail.com
+          </div>
+          <div class="p3-dato-linea" style="left: 28px; top: 424px;">
+            <span class="p3-dato-bold">Teléfono: </span>+51 951 561 926
+          </div>
+
+          <div class="p3-dato-linea p3-dato-bold" style="left: 482px; top: 198px;">
+            Pregunta Secreta:
+          </div>
+          <div class="p3-dato-linea" style="left: 482px; top: 232px;">
+            ¿Nombre de su Mejor amigo?
+          </div>
+          <div class="p3-dato-linea p3-dato-bold" style="left: 482px; top: 274px;">
+            Respuesta Secreta:
+          </div>
+          <div class="p3-dato-linea" style="left: 482px; top: 308px;">
+            Alejandro
+          </div>
+
+          <div class="p3-barcode" style="left: 579px; top: 350px; width: 132px; height: 132px;">
+            <svg width="116" height="85" viewBox="0 0 116 85">
+              <rect x="0" y="0" width="4" height="65" fill="#000"/>
+              <rect x="6" y="0" width="2" height="65" fill="#000"/>
+              <rect x="11" y="0" width="5" height="65" fill="#000"/>
+              <rect x="19" y="0" width="2" height="65" fill="#000"/>
+              <rect x="23" y="0" width="3" height="65" fill="#000"/>
+              <rect x="29" y="0" width="6" height="65" fill="#000"/>
+              <rect x="38" y="0" width="2" height="65" fill="#000"/>
+              <rect x="42" y="0" width="4" height="65" fill="#000"/>
+              <rect x="49" y="0" width="3" height="65" fill="#000"/>
+              <rect x="55" y="0" width="5" height="65" fill="#000"/>
+              <rect x="63" y="0" width="2" height="65" fill="#000"/>
+              <rect x="68" y="0" width="4" height="65" fill="#000"/>
+              <rect x="75" y="0" width="6" height="65" fill="#000"/>
+              <rect x="84" y="0" width="2" height="65" fill="#000"/>
+              <rect x="89" y="0" width="3" height="65" fill="#000"/>
+              <rect x="95" y="0" width="5" height="65" fill="#000"/>
+              <rect x="103" y="0" width="2" height="65" fill="#000"/>
+              <rect x="108" y="0" width="4" height="65" fill="#000"/>
+              <text x="58" y="80" font-family="'Roboto', monospace" font-size="12" font-weight="700" text-anchor="middle" fill="#000">5 901234 123457</text>
+            </svg>
+          </div>
+
+          <button type="button" class="btn-volver-login" style="left: 244px; top: 518px; width: 408px; height: 60px;" onclick="navigate('pantalla-login')">
+            Volver a Iniciar Sesión
+          </button>
+        </div>
+      </section>
+
+
+      <!-- ====================================================================
+           5) PÁGINA PRINCIPAL
+           ==================================================================== -->
+      <section id="pantalla-principal" class="stage" aria-label="Página Principal - Lotería SUNAT">
+        <div class="sunat-logo-top" onclick="navigate('pantalla-principal')">
+          <img src="./assets/logo-sunat.svg" alt="SUNAT">
+        </div>
+
+        <div class="barra-bienvenida">
+          <div class="barra-bienvenida-izq">
+            <div class="barra-txt-bienvenido">Bienvenido Alfonso Hernández</div>
+            <div class="barra-txt-provincia">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                <circle cx="12" cy="10" r="3"></circle>
+              </svg>
+              <span>N° de Provincia: 14 • Lima Metropolitana</span>
+            </div>
+          </div>
+          <div class="barra-bienvenida-der">
+            <div class="barra-txt-dni">DNI: 72158118</div>
+            <div class="barra-txt-periodo">Periodo: 01/07/2026 al 30/09/2026</div>
+          </div>
+        </div>
+
+        <!-- Franja Resumen KPI de la Lotería SUNAT -->
+        <div class="kpi-resumen-strip">
+          <div class="kpi-item" onclick="navigate('pantalla-consultar')" title="Ver todos tus comprobantes">
+            <div class="kpi-icono-caja kpi-icono-azul">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+              </svg>
+            </div>
+            <div class="kpi-info">
+              <span class="kpi-valor"><span id="kpi-total-comprobantes">5</span> Comprobantes</span>
+              <span class="kpi-etiqueta">Registrados para el sorteo</span>
+            </div>
+          </div>
+
+          <div class="kpi-divisor"></div>
+
+          <div class="kpi-item" onclick="navigate('pantalla-consultar')" title="Monto acumulado participante">
+            <div class="kpi-icono-caja kpi-icono-naranja">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="1" x2="12" y2="23"></line>
+                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+              </svg>
+            </div>
+            <div class="kpi-info">
+              <span class="kpi-valor" id="kpi-monto-acumulado">S/. 929.50</span>
+              <span class="kpi-etiqueta">Total acumulado participante</span>
+            </div>
+          </div>
+
+          <div class="kpi-divisor"></div>
+
+          <div class="kpi-item" onclick="navigate('pantalla-consultar')" title="Opciones o tickets de participación">
+            <div class="kpi-icono-caja kpi-icono-verde">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="6" width="20" height="12" rx="2"></rect>
+                <circle cx="12" cy="12" r="2"></circle>
+                <path d="M6 12h.01M18 12h.01"></path>
+              </svg>
+            </div>
+            <div class="kpi-info">
+              <span class="kpi-valor" id="kpi-tickets-sorteo">9 Tickets</span>
+              <span class="kpi-etiqueta">Opciones activas para sorteo</span>
+            </div>
+          </div>
+
+          <div class="kpi-divisor"></div>
+
+          <div class="kpi-item" title="Fecha del próximo sorteo nacional">
+            <div class="kpi-icono-caja kpi-icono-celeste">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+            </div>
+            <div class="kpi-info">
+              <span class="kpi-valor">15 Nov 2026</span>
+              <span class="kpi-etiqueta">Próximo Sorteo Nacional</span>
+            </div>
+          </div>
+
+          <button type="button" class="btn-kpi-qr-rapido" onclick="iniciarEscaneoQR()" title="Escanear comprobante con cámara">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="7" height="7"></rect>
+              <rect x="14" y="3" width="7" height="7"></rect>
+              <rect x="14" y="14" width="7" height="7"></rect>
+              <rect x="3" y="14" width="7" height="7"></rect>
+            </svg>
+            <span>ESCANEAR QR</span>
+          </button>
+        </div>
+
+        <!-- Fila 1 de Tarjetas -->
+        <div class="card-menu" style="left: 130px; top: 290px; height: 232px;" onclick="navigate('pantalla-registrar')">
+          <div class="card-menu-stripe" style="background-color: var(--azul);"></div>
+          <h3 class="card-menu-title">Registrar<br>Comprobantes</h3>
+          <div class="card-menu-icon">
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#083A62" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="12" y1="18" x2="12" y2="12"></line>
+              <line x1="9" y1="15" x2="15" y2="15"></line>
+            </svg>
+          </div>
+          <p class="card-menu-desc">Registra tus comprobantes manuales o mediante QR</p>
+          <div class="card-menu-footer">
+            <span>Acceder</span>
+            <span class="card-menu-link-arrow">→</span>
+          </div>
+        </div>
+
+        <div class="card-menu" style="left: 481px; top: 290px; height: 232px;" onclick="navigate('pantalla-consultar')">
+          <div class="card-menu-stripe" style="background-color: var(--naranja);"></div>
+          <h3 class="card-menu-title">Mis<br>Comprobantes</h3>
+          <div class="card-menu-icon">
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#FFB012" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+              <line x1="12" y1="11" x2="12" y2="17"></line>
+              <line x1="9" y1="14" x2="15" y2="14"></line>
+            </svg>
+          </div>
+          <p class="card-menu-desc">Consulta tus comprobantes registrados y su estado</p>
+          <div class="card-menu-footer">
+            <span>Consultar</span>
+            <span class="card-menu-link-arrow">→</span>
+          </div>
+        </div>
+
+        <div class="card-menu" style="left: 832px; top: 290px; height: 232px;" onclick="navigate('pantalla-opciones')">
+          <div class="card-menu-stripe" style="background-color: var(--fucsia);"></div>
+          <h3 class="card-menu-title">Mis<br>Opciones</h3>
+          <div class="card-menu-icon">
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#FB00FF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="3"></circle>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            </svg>
+          </div>
+          <p class="card-menu-desc">Personaliza notificaciones, sonidos y preferencias</p>
+          <div class="card-menu-footer">
+            <span>Configurar</span>
+            <span class="card-menu-link-arrow">→</span>
+          </div>
+        </div>
+
+        <!-- Fila 2 de Tarjetas -->
+        <div class="card-menu" style="left: 130px; top: 540px; height: 232px;" onclick="navigate('pantalla-mis-datos')">
+          <div class="card-menu-stripe" style="background-color: var(--celeste);"></div>
+          <h3 class="card-menu-title">Mis<br>Datos</h3>
+          <div class="card-menu-icon">
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#55AEE6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+          </div>
+          <p class="card-menu-desc">Verifica y actualiza tus datos personales registrados</p>
+          <div class="card-menu-footer">
+            <span>Ver Datos</span>
+            <span class="card-menu-link-arrow">→</span>
+          </div>
+        </div>
+
+        <div class="card-menu" style="left: 481px; top: 540px; height: 232px;" onclick="navigate('pantalla-cambiar-clave')">
+          <div class="card-menu-stripe" style="background-color: var(--verde);"></div>
+          <h3 class="card-menu-title">Cambiar<br>Clave</h3>
+          <div class="card-menu-icon">
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#70D324" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+              <rect x="9" y="10" width="6" height="5" rx="1" stroke="#70D324" stroke-width="2"></rect>
+              <path d="M10 10V8a2 2 0 1 1 4 0v2" stroke="#70D324" stroke-width="2"></path>
+            </svg>
+          </div>
+          <p class="card-menu-desc">Actualiza tu contraseña con la máxima seguridad SUNAT</p>
+          <div class="card-menu-footer">
+            <span>Seguridad</span>
+            <span class="card-menu-link-arrow">→</span>
+          </div>
+        </div>
+
+        <div class="card-menu" style="left: 832px; top: 540px; height: 232px;" onclick="cerrarSesion()">
+          <div class="card-menu-stripe" style="background-color: var(--rojo);"></div>
+          <h3 class="card-menu-title">Cerrar<br>Sesión</h3>
+          <div class="card-menu-icon">
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#B13030" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+              <polyline points="16 17 21 12 16 7"></polyline>
+              <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+          </div>
+          <p class="card-menu-desc">Finaliza tu sesión de forma segura en la plataforma</p>
+          <div class="card-menu-footer">
+            <span>Salir</span>
+            <span class="card-menu-link-arrow">→</span>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- ====================================================================
+           6) REGISTRAR COMPROBANTES
+           ==================================================================== -->
+      <section id="pantalla-registrar" class="stage" aria-label="Registrar Nuevos Comprobantes">
+        <div class="sunat-logo-top" onclick="navigate('pantalla-principal')">
+          <img src="./assets/logo-sunat.svg" alt="SUNAT">
+        </div>
+
+        <div class="tarjeta-base card-registrar" style="left: 160px; top: 150px;">
+          <h1 class="titulo-seccion-32" style="top: 22px;">REGISTRAR NUEVOS COMPROBANTES</h1>
+          <p class="subtitulo-seccion-20" style="top: 72px;">Ingresa los datos de tus boletas</p>
+          <h2 class="subtitulo-tipo-22" style="top: 116px;">Tipo de Comprobante</h2>
+
+          <button type="button" id="btn-toggle-boleta" class="toggle-tipo-btn activo" style="left: 170px; top: 156px;" onclick="setTipoComprobante('Boleta')">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+            </svg>
+            <span>Boleta de Venta</span>
+          </button>
+
+          <button type="button" id="btn-toggle-recibo" class="toggle-tipo-btn inactivo" style="left: 490px; top: 156px;" onclick="setTipoComprobante('Recibo por Honorarios')">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+            </svg>
+            <span>Recibo por Honorarios</span>
+          </button>
+
+          <form id="form-registrar-comprobante" onsubmit="handleRegistrarComprobante(event)">
+            <label for="comp-serie" class="label-input-18" style="left: 30px; top: 236px;">Serie de Comprobante</label>
+            <input type="text" id="comp-serie" class="input-comprobante input-base" style="left: 30px; top: 268px; width: 190px;" placeholder="B001" value="B001" maxlength="4" required>
+
+            <label for="comp-numero" class="label-input-18" style="left: 240px; top: 236px;">N° de Comprobante</label>
+            <input type="text" id="comp-numero" class="input-comprobante input-base" style="left: 240px; top: 268px; width: 190px;" placeholder="045940" value="045940" maxlength="8" required>
+
+            <label for="comp-ruc" class="label-input-18" style="left: 450px; top: 236px;">RUC del Emisor:</label>
+            <input type="text" id="comp-ruc" class="input-comprobante input-base" style="left: 450px; top: 268px; width: 260px;" placeholder="20123456789" value="20123456789" maxlength="11" required>
+
+            <label for="comp-fecha" class="label-input-18" style="left: 730px; top: 236px;">Fecha de Emisión</label>
+            <div style="position: absolute; left: 730px; top: 268px; width: 200px; height: 48px;">
+              <input type="date" id="comp-fecha" class="input-comprobante input-base" style="left: 0; top: 0; width: 100%; height: 100%;" value="2026-05-10" required>
+            </div>
+
+            <button type="submit" class="btn-accion-71 btn-accion-azul" style="left: 213px; top: 366px;">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+              </svg>
+              <span>REGISTRAR</span>
+            </button>
+
+            <button type="button" class="btn-accion-71 btn-accion-azul" style="left: 515px; top: 366px; line-height: 1.15;" onclick="navigate('pantalla-qr')">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="7" height="7"></rect>
+                <rect x="14" y="3" width="7" height="7"></rect>
+                <rect x="14" y="14" width="7" height="7"></rect>
+                <rect x="3" y="14" width="7" height="7"></rect>
+              </svg>
+              <span>REGISTRAR<br>CÓDIGO QR</span>
+            </button>
+
+            <button type="button" class="btn-accion-71 btn-accion-celeste" style="left: 364px; top: 474px;" onclick="navigate('pantalla-principal')">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+              </svg>
+              <span>IR AL INICIO</span>
+            </button>
+          </form>
+        </div>
+      </section>
+
+
+      <!-- ====================================================================
+           7) REGISTRAR CÓDIGO QR
+           ==================================================================== -->
+      <section id="pantalla-qr" class="stage" aria-label="Escanear Código QR">
+        <div class="sunat-logo-top">
+          <img src="./assets/logo-sunat.svg" alt="SUNAT">
+        </div>
+        <div class="tarjeta-base card-registrar" style="left: 160px; top: 150px; opacity: 0.35;"></div>
+        
+        <div class="overlay-qr-fondo" onclick="navigate('pantalla-registrar')" title="Clic para volver"></div>
+
+        <div class="marco-escaneo-qr" id="marco-qr" onclick="simularLecturaQR()" title="Apunta al código QR o haz clic para escanear">
+          <!-- Esquinas estilizadas HUD de mira de escaneo -->
+          <div class="hud-corner hud-top-left"></div>
+          <div class="hud-corner hud-top-right"></div>
+          <div class="hud-corner hud-bottom-left"></div>
+          <div class="hud-corner hud-bottom-right"></div>
+
+          <!-- Cuadrícula sutil y cruz central de enfoque -->
+          <div class="qr-target-grid">
+            <div class="qr-target-crosshair"></div>
+          </div>
+
+          <!-- Rayo láser de escaneo animado con resplandor y estela de barrido -->
+          <div class="qr-laser-scanner-container">
+            <div class="qr-laser-beam">
+              <div class="qr-laser-veil"></div>
+              <div class="qr-laser-glow"></div>
+              <div class="qr-laser-core"></div>
+            </div>
+          </div>
+
+          <!-- Indicador de escaneo activo con pulso -->
+          <div class="qr-scanning-badge">
+            <span class="qr-scanning-dot"></span>
+            <span>ESCANEANDO COMPROBANTE</span>
+          </div>
+        </div>
+
+        <button type="button" class="qr-control-btn" style="left: 150px; top: 620px;" onclick="toggleFlashCamera()" aria-label="Activar Flash">
+          <svg width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="#083A62" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+            <circle cx="12" cy="13" r="4"></circle>
+          </svg>
+          <span class="qr-control-texto" id="txt-flash">ACTIVAR FLASH</span>
+        </button>
+
+        <button type="button" class="qr-control-btn" style="left: 955px; top: 615px;" onclick="simularLecturaQR()" aria-label="Subir de Galería">
+          <svg width="110" height="110" viewBox="0 0 24 24" fill="none" stroke="#083A62" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+            <circle cx="8.5" cy="8.5" r="1.5"></circle>
+            <polyline points="21 15 16 10 5 21"></polyline>
+          </svg>
+          <span class="qr-control-texto">SUBIR DE GALERÍA</span>
+        </button>
+      </section>
+
+
+      <!-- ====================================================================
+           8) COMPROBANTE REGISTRADO CON ÉXITO (DISEÑO SEGÚN IMÁGENES 3 Y 4)
+           ==================================================================== -->
+      <section id="pantalla-registrado" class="stage" aria-label="Comprobante Registrado con Éxito">
+        <div class="sunat-logo-top" onclick="navigate('pantalla-principal')">
+          <img src="./assets/logo-sunat.svg" alt="SUNAT">
+        </div>
+
+        <div class="tarjeta-base card-registrado" style="left: 160px; top: 150px; width: 960px; height: 629px;">
+          <!-- Título principal -->
+          <h1 class="titulo-seccion-32" style="top: 24px; font-size: 28px;">COMPROBANTE REGISTRADO CON ÉXITO</h1>
+
+          <!-- Columna Izquierda: Datos del Comprobante (Espaciosa y sin solapamiento) -->
+          <div class="registrado-col-izq-espaciosa">
+            <div class="registrado-dato-item">
+              <strong>Serie del Comprobante:</strong>
+              <span id="reg-conf-serie">B001</span>
+            </div>
+            <div class="registrado-dato-item">
+              <strong>Número del Comprobante:</strong>
+              <span id="reg-conf-numero">045940</span>
+            </div>
+            <div class="registrado-dato-item">
+              <strong>RUC del Emisor:</strong>
+              <span id="reg-conf-ruc">20458395010</span>
+            </div>
+            <div class="registrado-dato-item">
+              <strong>Tipo de Comprobante:</strong>
+              <span id="reg-conf-tipo">Boleta de Ventas</span>
+            </div>
+            <div class="registrado-dato-item">
+              <strong>Fecha de Emisión:</strong>
+              <span id="reg-conf-fecha">10/05/2026</span>
+            </div>
+            <div class="registrado-dato-item">
+              <strong>Empresa:</strong>
+              <span id="reg-conf-empresa">Innovatech.S.A</span>
+            </div>
+            <div class="registrado-dato-item">
+              <strong>Monto:</strong>
+              <span id="reg-conf-monto">S/. 124.80</span>
+            </div>
+            <div class="registrado-dato-item" style="display: flex; align-items: center; gap: 12px; margin-top: 4px;">
+              <strong>Estado:</strong>
+              <span class="pildora-estado pildora-verde" id="reg-conf-estado" style="width: 105px; height: 26px; font-size: 14px;">Registrado</span>
+            </div>
+          </div>
+
+          <!-- Columna Derecha: VISUALIZACIÓN PREVIA (Clic abre Modal Imagen 4) -->
+          <div class="registrado-col-der-espaciosa">
+            <div class="preview-header-trigger" onclick="abrirModalFacturaFull()" title="Clic para ampliar vista total">
+              <span class="preview-titulo">VISUALIZACIÓN PREVIA</span>
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#083A62" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+            </div>
+
+            <!-- Caja miniatura de factura (clickable) -->
+            <div class="preview-box-mini" onclick="abrirModalFacturaFull()" title="Clic para ver comprobante completo">
+              <div class="mini-invoice-header">
+                <div>
+                  <div class="mini-company-name">SOLUCIONES DIGITALES S.A.C.</div>
+                  <div class="mini-company-sub">
+                    Av. Javier Prado Este 456, Int. 801, San Isidro<br>
+                    contacto@solucionesdigitales.pe
+                  </div>
+                </div>
+                <div class="mini-ruc-box">
+                  <div class="mini-ruc-title">R.U.C. N° 20601234567</div>
+                  <div class="mini-ruc-banner">BOLETA DE VENTA ELECTRÓNICA</div>
+                  <div class="mini-ruc-num" id="mini-ruc-num">B001 - 00004829</div>
+                </div>
+              </div>
+
+              <div class="mini-client-grid">
+                <div>
+                  <strong>CLIENTE: </strong>GARCÍA PÉREZ, CARLOS A.<br>
+                  <strong>DNI / C.E.: </strong>45891234
+                </div>
+                <div style="text-align: right;">
+                  <strong>EMISIÓN: </strong>24/10/2026<br>
+                  <strong>MONEDA: </strong>SOLES (S/)
+                </div>
+              </div>
+
+              <table class="mini-table">
+                <thead>
+                  <tr>
+                    <th>ITEM</th>
+                    <th>DESCRIPCIÓN</th>
+                    <th style="text-align: right;">IMPORTE</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>1</td>
+                    <td>Licencia Software SaaS Plan Pro</td>
+                    <td style="text-align: right;">120.00</td>
+                  </tr>
+                  <tr>
+                    <td>2</td>
+                    <td>Servicio de Configuración API</td>
+                    <td style="text-align: right;">170.00</td>
+                  </tr>
+                  <tr>
+                    <td>3</td>
+                    <td>Soporte Técnico 24/7 (5 hrs)</td>
+                    <td style="text-align: right;">250.00</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <div class="mini-totals-row">
+                <div style="font-size: 7.5px; color: #666;">
+                  Representación digital autorizada SUNAT
+                </div>
+                <div class="mini-total-amount">
+                  IMPORTE TOTAL: S/ 540.00
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Botones Inferiores Estilo Imagen 3 -->
+          <button type="button" class="btn-registrado-img3 btn-registrado-img3-azul" onclick="registrarOtroComprobante()">
+            <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+              <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+            </svg>
+            <span>REGISTRAR<br>OTRO<br>COMPONENTE</span>
+          </button>
+
+          <button type="button" class="btn-registrado-img3 btn-registrado-img3-celeste" onclick="navigate('pantalla-consultar')">
+            <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+              <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+              <line x1="9" y1="12" x2="15" y2="12"></line>
+            </svg>
+            <span>IR A MIS<br>COMPROBANTES</span>
+          </button>
+        </div>
+      </section>
+
+
+      <!-- ====================================================================
+           9) CONSULTAR COMPROBANTES (stage 1280 x 832)
+           ==================================================================== -->
+      <section id="pantalla-consultar" class="stage" aria-label="Consulta de Comprobantes">
+        <div class="sunat-logo-top" onclick="navigate('pantalla-principal')">
+          <img src="./assets/logo-sunat.svg" alt="SUNAT">
+        </div>
+
+        <div class="tarjeta-base card-consultar" style="left: 150px; top: 104px; width: 980px; height: 630px;">
+          <div class="card-franja-azul-top"></div>
+
+          <h1 class="titulo-seccion-32" style="top: 34px; font-size: 26px;">CONSULTA TUS COMPROBANTES</h1>
+          <p class="subtitulo-seccion-20" style="top: 66px; font-size: 15px;">Ingresa los datos de tus boletas</p>
+
+          <input type="text" id="buscador-tabla" class="buscador-comprobantes" style="top: 96px; left: 50px; width: 880px;" placeholder="Buscar por RUC, número, fecha, tipo o estado" oninput="filtrarTablaComprobantes(this.value)">
+
+          <!-- Barra de Filtros interactiva -->
+          <div class="consultar-filtros-bar" style="top: 148px; left: 50px; width: 880px;">
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <span style="font-size: 13px; font-weight: 700; color: var(--azul);">Tipo:</span>
+              <button type="button" class="filtro-pill-btn activo" id="btn-filtro-tipo-todos" onclick="setFiltroTipo('todos', this)">Todos</button>
+              <button type="button" class="filtro-pill-btn" id="btn-filtro-tipo-boleta" onclick="setFiltroTipo('Boleta', this)">Boletas</button>
+              <button type="button" class="filtro-pill-btn" id="btn-filtro-tipo-recibo" onclick="setFiltroTipo('Recibo por Honorario', this)">Recibos</button>
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <span style="font-size: 13px; font-weight: 700; color: var(--azul);">Estado:</span>
+              <button type="button" class="filtro-pill-btn activo" id="btn-filtro-estado-todos" onclick="setFiltroEstado('todos', this)">Todos</button>
+              <button type="button" class="filtro-pill-btn" id="btn-filtro-estado-registrado" onclick="setFiltroEstado('Registrado', this)">Registrado</button>
+              <button type="button" class="filtro-pill-btn" id="btn-filtro-estado-verificar" onclick="setFiltroEstado('Por Verificar', this)">Por Verificar</button>
+              <button type="button" class="filtro-pill-btn" id="btn-filtro-estado-nocumple" onclick="setFiltroEstado('No Cumple', this)">No Cumple</button>
+            </div>
+          </div>
+
+          <div class="tabla-comprobantes-wrapper" style="top: 190px; left: 50px; width: 880px; max-height: 335px; overflow-y: auto; overflow-x: hidden;">
+            <table class="tabla-comprobantes" id="tabla-comprobantes-body">
+              <thead>
+                <tr>
+                  <th style="width: 140px; white-space: nowrap;">FECHA DE EMISIÓN</th>
+                  <th style="width: 160px; white-space: nowrap;">Tipo</th>
+                  <th style="width: 125px; white-space: nowrap;">RUC Emisor</th>
+                  <th style="width: 155px; white-space: nowrap;">Serie Número</th>
+                  <th style="width: 105px; white-space: nowrap;">Monto</th>
+                  <th style="width: 125px; white-space: nowrap;">Estado</th>
+                  <th style="width: 70px; white-space: nowrap;">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-comprobantes">
+                <!-- Se renderiza dinámicamente -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Barra resumen al pie de la tabla -->
+          <div class="tabla-comprobantes-resumen-bar" id="tabla-resumen-bar">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--azul)" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+              <span id="txt-resumen-total-comprobantes" style="font-size: 13px; font-weight: 700; color: var(--azul);">Mostrando 5 comprobantes registrados</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#15803D" stroke-width="2.5"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+              <span id="txt-resumen-total-monto" style="font-size: 13px; font-weight: 700; color: #15803D;">Total acumulado: S/. 929.50</span>
+            </div>
+          </div>
+
+          <button type="button" class="btn-volver-consultar" onclick="navigate('pantalla-principal')">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+              <polyline points="9 22 9 12 15 12 15 22"></polyline>
+            </svg>
+            <span>IR AL INICIO</span>
+          </button>
+        </div>
+
+      </section>
+
+
+      <!-- ====================================================================
+           11) CAMBIAR CLAVE
+           ==================================================================== -->
+      <!-- ====================================================================
+           11) CAMBIAR CLAVE (DISEÑO INTUITIVO DE DOS COLUMNAS SIN HUECOS EN BLANCO)
+           ==================================================================== -->
+      <section id="pantalla-cambiar-clave" class="stage" aria-label="Cambiar Contraseña">
+        <div class="sunat-logo-top" onclick="navigate('pantalla-principal')">
+          <img src="./assets/logo-sunat.svg" alt="SUNAT">
+        </div>
+
+        <div class="tarjeta-base card-cambiar-clave" style="left: 192px; top: 150px;">
+          <div class="registro-banner-azul" style="top: 0; height: 58px; display: flex; align-items: center; justify-content: center; gap: 12px;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+            <h2 class="registro-banner-text" style="position: static; transform: none;">CAMBIAR CLAVE DE ACCESO</h2>
+          </div>
+
+          <div class="cambiar-clave-container">
+            <!-- Columna Izquierda: Panel de Seguridad y Requisitos Interactivos -->
+            <div class="clave-panel-seguridad">
+              <div class="seguridad-badge-header">
+                <div class="seguridad-badge-icon">
+                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#083A62" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                    <polyline points="9 12 11 14 15 10"></polyline>
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="seguridad-badge-titulo">Seguridad de tu Cuenta</h3>
+                  <p class="seguridad-badge-desc">Protege tus comprobantes y participación en la Lotería SUNAT.</p>
+                </div>
+              </div>
+
+              <!-- Medidor dinámico de fortaleza de clave -->
+              <div class="medidor-fortaleza-box">
+                <div class="medidor-header-row">
+                  <span class="medidor-lbl">Fortaleza de la nueva clave:</span>
+                  <span id="badge-fortaleza-texto" class="badge-fortaleza nivel-vacio">Sin ingresar</span>
+                </div>
+                <div class="medidor-barras-grid">
+                  <div class="barra-segmento" id="bar-seg-1"></div>
+                  <div class="barra-segmento" id="bar-seg-2"></div>
+                  <div class="barra-segmento" id="bar-seg-3"></div>
+                  <div class="barra-segmento" id="bar-seg-4"></div>
+                </div>
+              </div>
+
+              <!-- Requisitos interactivos en tiempo real con check verde -->
+              <div class="requisitos-interactivos-box">
+                <span class="requisitos-titulo">Requisitos de la contraseña:</span>
+                <ul class="lista-requisitos-dinamica">
+                  <li id="req-longitud" class="req-item">
+                    <span class="req-circle"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                    <span>Entre 5 y 15 caracteres</span>
+                  </li>
+                  <li id="req-mayus" class="req-item">
+                    <span class="req-circle"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                    <span>Al menos una letra mayúscula (A-Z)</span>
+                  </li>
+                  <li id="req-minus" class="req-item">
+                    <span class="req-circle"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                    <span>Al menos una letra minúscula (a-z)</span>
+                  </li>
+                  <li id="req-numero" class="req-item">
+                    <span class="req-circle"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                    <span>Al menos un número (0-9)</span>
+                  </li>
+                  <li id="req-coincide" class="req-item">
+                    <span class="req-circle"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                    <span>Las contraseñas coinciden</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div class="consejo-seguridad-footer">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#55AEE6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="16" x2="12" y2="12"></line>
+                  <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                </svg>
+                <span>No uses datos personales como DNI o fechas de cumpleaños.</span>
+              </div>
+            </div>
+
+            <!-- Columna Derecha: Formulario con inputs elegantes -->
+            <div class="clave-panel-formulario">
+              <form id="form-cambiar-clave" onsubmit="handleCambiarClaveSubmit(event)">
+                <div class="campo-clave-grupo">
+                  <label for="clave-actual" class="campo-clave-label">Clave actual</label>
+                  <div class="campo-clave-input-wrapper">
+                    <span class="icono-candado">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#083A62" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                      </svg>
+                    </span>
+                    <input type="password" id="clave-actual" class="campo-clave-input" value="Demo2026" required placeholder="Ingresa tu clave actual">
+                    <button type="button" class="btn-ver-clave" onclick="togglePasswordVisibility('clave-actual', this)" aria-label="Mostrar u ocultar clave">
+                      <svg class="eye-closed" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#083A62" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                        <line x1="1" y1="1" x2="23" y2="23"></line>
+                      </svg>
+                      <svg class="eye-open" style="display:none;" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#083A62" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                      </svg>
+                    </button>
+                  </div>
+                  <span id="err-clave-actual" class="msg-error-inline"></span>
+                </div>
+
+                <div class="campo-clave-grupo">
+                  <label for="clave-nueva" class="campo-clave-label">Nueva clave</label>
+                  <div class="campo-clave-input-wrapper">
+                    <span class="icono-candado">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#083A62" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                      </svg>
+                    </span>
+                    <input type="password" id="clave-nueva" class="campo-clave-input" placeholder="Nueva contraseña segura" required oninput="evaluarClaveEnVivo()">
+                    <button type="button" class="btn-ver-clave" onclick="togglePasswordVisibility('clave-nueva', this)" aria-label="Mostrar u ocultar clave">
+                      <svg class="eye-closed" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#083A62" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                        <line x1="1" y1="1" x2="23" y2="23"></line>
+                      </svg>
+                      <svg class="eye-open" style="display:none;" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#083A62" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                      </svg>
+                    </button>
+                  </div>
+                  <span id="err-clave-nueva" class="msg-error-inline"></span>
+                </div>
+
+                <div class="campo-clave-grupo">
+                  <label for="clave-repetir" class="campo-clave-label">Repetir nueva clave</label>
+                  <div class="campo-clave-input-wrapper">
+                    <span class="icono-candado">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#083A62" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                      </svg>
+                    </span>
+                    <input type="password" id="clave-repetir" class="campo-clave-input" placeholder="Confirma tu nueva contraseña" required oninput="evaluarClaveEnVivo()">
+                    <button type="button" class="btn-ver-clave" onclick="togglePasswordVisibility('clave-repetir', this)" aria-label="Mostrar u ocultar clave">
+                      <svg class="eye-closed" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#083A62" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                        <line x1="1" y1="1" x2="23" y2="23"></line>
+                      </svg>
+                      <svg class="eye-open" style="display:none;" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#083A62" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                      </svg>
+                    </button>
+                  </div>
+                  <span id="err-clave-repetir" class="msg-error-inline"></span>
+                </div>
+
+                <!-- Botones con animaciones y efectos -->
+                <div class="botones-clave-row">
+                  <button type="submit" class="btn-actualizar-clave-moderno">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    <span>ACTUALIZAR CLAVE</span>
+                  </button>
+
+                  <button type="button" class="btn-atras-clave-moderno" onclick="navigate('pantalla-principal')">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <line x1="19" y1="12" x2="5" y2="12"></line>
+                      <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                    <span>ATRÁS</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- ====================================================================
+           12) CAMBIAR CLAVE – CARGANDO
+           ==================================================================== -->
+      <section id="pantalla-cambiar-clave-cargando" class="stage" aria-label="Actualizando clave">
+        <div class="sunat-logo-top">
+          <img src="./assets/logo-sunat.svg" alt="SUNAT">
+        </div>
+        <div class="tarjeta-base card-cambiar-clave" style="left: 192px; top: 150px; opacity: 0.35;"></div>
+        <div class="overlay-cargando"></div>
+
+        <div class="caja-cargando">
+          <div class="spinner-azul"></div>
+          <h2 class="txt-cargando-titulo">Actualizando clave...</h2>
+          <p class="txt-cargando-sub">Cifrando y registrando en el sistema de seguridad SUNAT</p>
+        </div>
+      </section>
+
+
+      <!-- ====================================================================
+           13) CAMBIAR CLAVE – CONFIRMADA (DISEÑO MEJORADO, CELEBRATORIO E INFORMATIVO)
+           ==================================================================== -->
+      <section id="pantalla-cambiar-clave-confirmada" class="stage" aria-label="Clave actualizada correctamente">
+        <div class="sunat-logo-top" onclick="navigate('pantalla-principal')">
+          <img src="./assets/logo-sunat.svg" alt="SUNAT">
+        </div>
+
+        <div class="tarjeta-base card-clave-confirmada-moderna">
+          <!-- Efectos de partículas de celebración -->
+          <div class="confetti-container" aria-hidden="true">
+            <span class="confetti c1"></span>
+            <span class="confetti c2"></span>
+            <span class="confetti c3"></span>
+            <span class="confetti c4"></span>
+            <span class="confetti c5"></span>
+            <span class="confetti c6"></span>
+            <span class="confetti c7"></span>
+            <span class="confetti c8"></span>
+          </div>
+
+          <!-- Icono de Checkmark con doble halo pulsante -->
+          <div class="check-pulsante-wrapper">
+            <div class="pulse-ring pulse-ring-1"></div>
+            <div class="pulse-ring pulse-ring-2"></div>
+            <div class="check-circulo-verde-moderno">
+              <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </div>
+          </div>
+
+          <h1 class="confirmacion-titulo">¡Clave actualizada correctamente!</h1>
+          <p class="confirmacion-subtitulo">Tu contraseña de acceso ha sido renovada con éxito. Tu cuenta ahora se encuentra totalmente protegida para participar en el sorteo de la Lotería SUNAT.</p>
+
+          <!-- Resumen de la Operación y Auditoría -->
+          <div class="confirmacion-resumen-card">
+            <div class="resumen-item">
+              <span class="resumen-label">Titular de la cuenta:</span>
+              <strong class="resumen-valor" id="conf-resumen-nombre">Alfonso Valentino Hernández</strong>
+            </div>
+            <div class="resumen-item">
+              <span class="resumen-label">Documento de identidad:</span>
+              <strong class="resumen-valor">DNI 72158118</strong>
+            </div>
+            <div class="resumen-item">
+              <span class="resumen-label">Fecha y hora de actualización:</span>
+              <strong class="resumen-valor" id="conf-resumen-fecha">Hoy, 28/10/2026</strong>
+            </div>
+            <div class="resumen-item">
+              <span class="resumen-label">Nivel de protección:</span>
+              <strong class="resumen-valor estado-seguro">
+                <span class="dot-verde"></span> Máxima (Cifrado SUNAT)
+              </strong>
+            </div>
+          </div>
+
+          <!-- Botones de Acción -->
+          <div class="confirmacion-botones-row">
+            <button type="button" class="btn-conf-accion btn-conf-azul" onclick="navigate('pantalla-principal')">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+              </svg>
+              <span>IR AL INICIO</span>
+            </button>
+
+            <button type="button" class="btn-conf-accion btn-conf-celeste" onclick="navigate('pantalla-consultar')">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+                <line x1="12" y1="11" x2="12" y2="17"></line>
+                <line x1="9" y1="14" x2="15" y2="14"></line>
+              </svg>
+              <span>MIS COMPROBANTES</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- ====================================================================
+           14) NUEVA PANTALLA: MIS DATOS (ALTA FIDELIDAD Y PERFIL OFICIAL)
+           ==================================================================== -->
+      <section id="pantalla-mis-datos" class="stage" aria-label="Mis Datos Personales">
+        <div class="sunat-logo-top" onclick="navigate('pantalla-principal')">
+          <img src="./assets/logo-sunat.svg" alt="SUNAT">
+        </div>
+
+        <div class="tarjeta-base card-mis-datos">
+          <div class="registro-banner-azul" style="top: 0; height: 58px; display: flex; align-items: center; justify-content: center; gap: 12px;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            <h2 class="registro-banner-text" style="position: static; transform: none;">MIS DATOS REGISTRADOS</h2>
+          </div>
+
+          <!-- Banner Resumen de Perfil -->
+          <div class="perfil-resumen-banner">
+            <div class="perfil-avatar-col">
+              <div class="perfil-avatar-circulo">AH</div>
+              <div>
+                <h3 class="perfil-titular-nombre">Alfonso Valentino Hernández Gutiérrez</h3>
+                <div class="perfil-titular-sub">
+                  <span>DNI 72158118</span>
+                  <span>•</span>
+                  <span>Provincia 14 - Lima Metropolitana</span>
+                </div>
+              </div>
+            </div>
+            <div class="perfil-badge-nivel">
+              <span class="badge-estado-participante">
+                <span class="dot-verde"></span>
+                Participante Activo • Verificado
+              </span>
+            </div>
+          </div>
+
+          <form id="form-mis-datos" onsubmit="guardarMisDatos(event)">
+            <div class="mis-datos-columnas-wrap">
+              <!-- Columna 1: Identidad -->
+              <div class="seccion-datos-bloque">
+                <div class="seccion-datos-header">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="16" rx="2"></rect>
+                    <line x1="7" y1="8" x2="17" y2="8"></line>
+                    <line x1="7" y1="12" x2="13" y2="12"></line>
+                  </svg>
+                  <span>Identidad Oficial (RENIEC / SUNAT)</span>
+                </div>
+
+                <div class="campo-dato-row">
+                  <label class="campo-dato-label" for="md-dni">Documento de Identidad (DNI):</label>
+                  <div class="campo-dato-input-wrap">
+                    <span class="campo-dato-icon">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                    </span>
+                    <input type="text" id="md-dni" class="campo-dato-input campo-readonly" value="72158118" readonly>
+                  </div>
+                </div>
+
+                <div class="campo-dato-row">
+                  <label class="campo-dato-label" for="md-nombres">Nombres:</label>
+                  <div class="campo-dato-input-wrap">
+                    <span class="campo-dato-icon">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                    </span>
+                    <input type="text" id="md-nombres" class="campo-dato-input" value="Alfonso Valentino" required>
+                  </div>
+                </div>
+
+                <div class="campo-dato-row">
+                  <label class="campo-dato-label" for="md-apellidos">Apellidos:</label>
+                  <div class="campo-dato-input-wrap">
+                    <span class="campo-dato-icon">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
+                    </span>
+                    <input type="text" id="md-apellidos" class="campo-dato-input" value="Hernández Gutiérrez" required>
+                  </div>
+                </div>
+
+                <div class="campo-dato-row">
+                  <label class="campo-dato-label" for="md-fecha-nac">Fecha de Nacimiento:</label>
+                  <div class="campo-dato-input-wrap">
+                    <span class="campo-dato-icon">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                    </span>
+                    <input type="date" id="md-fecha-nac" class="campo-dato-input" value="1998-05-15" required>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Columna 2: Contacto & Participación -->
+              <div class="seccion-datos-bloque">
+                <div class="seccion-datos-header">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                    <polyline points="22,6 12,13 2,6"></polyline>
+                  </svg>
+                  <span>Contacto y Participación en Sorteo</span>
+                </div>
+
+                <div class="campo-dato-row">
+                  <label class="campo-dato-label" for="md-correo">Correo Electrónico:</label>
+                  <div class="campo-dato-input-wrap">
+                    <span class="campo-dato-icon">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                    </span>
+                    <input type="email" id="md-correo" class="campo-dato-input" value="valentinohernandez27@gmail.com" required>
+                  </div>
+                </div>
+
+                <div class="campo-dato-row">
+                  <label class="campo-dato-label" for="md-telefono">Teléfono Celular:</label>
+                  <div class="campo-dato-input-wrap">
+                    <span class="campo-dato-icon">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                    </span>
+                    <input type="tel" id="md-telefono" class="campo-dato-input" value="+51 951 561 926" required>
+                  </div>
+                </div>
+
+                <div class="campo-dato-row">
+                  <label class="campo-dato-label" for="md-provincia">N° de Provincia asignada:</label>
+                  <div class="campo-dato-input-wrap">
+                    <span class="campo-dato-icon">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                    </span>
+                    <input type="text" id="md-provincia" class="campo-dato-input campo-readonly" value="14 - Lima Metropolitana" readonly>
+                  </div>
+                </div>
+
+                <div class="campo-dato-row">
+                  <label class="campo-dato-label" for="md-periodo">Periodo de Sorteo:</label>
+                  <div class="campo-dato-input-wrap">
+                    <span class="campo-dato-icon">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    </span>
+                    <input type="text" id="md-periodo" class="campo-dato-input campo-readonly" value="01/07/2026 al 30/09/2026" readonly>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <button type="submit" class="btn-guardar-custom">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              <span>GUARDAR CAMBIOS</span>
+            </button>
+
+            <button type="button" class="btn-volver-custom" onclick="navigate('pantalla-principal')">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+              </svg>
+              <span>IR AL INICIO</span>
+            </button>
+          </form>
+        </div>
+      </section>
+
+
+      <!-- ====================================================================
+           15) NUEVA PANTALLA: MIS OPCIONES Y PREFERENCIAS (CATEGORIZADA)
+           ==================================================================== -->
+      <section id="pantalla-opciones" class="stage" aria-label="Mis Opciones y Preferencias">
+        <div class="sunat-logo-top" onclick="navigate('pantalla-principal')">
+          <img src="./assets/logo-sunat.svg" alt="SUNAT">
+        </div>
+
+        <div class="tarjeta-base card-opciones">
+          <div class="registro-banner-azul" style="top: 0; height: 58px; display: flex; align-items: center; justify-content: center; gap: 12px;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="3"></circle>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            </svg>
+            <h2 class="registro-banner-text" style="position: static; transform: none;">MIS OPCIONES Y PREFERENCIAS</h2>
+          </div>
+
+          <form id="form-opciones" onsubmit="guardarOpciones(event)">
+            <div class="opciones-contenedor-scroll">
+              <!-- Categoría 1: Notificaciones y Alertas -->
+              <div class="opciones-grupo-card">
+                <div class="opciones-grupo-titulo">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                  </svg>
+                  <span>Notificaciones y Alertas del Sorteo</span>
+                </div>
+
+                <div class="opcion-card-row">
+                  <div class="opcion-info">
+                    <span class="opcion-titulo">Alertas por Correo Electrónico</span>
+                    <span class="opcion-desc">Recibe avisos automáticos de comprobantes validados, fechas clave y resultados del sorteo.</span>
+                  </div>
+                  <div class="opcion-controles-der">
+                    <span class="badge-opcion-estado activo" id="badge-opt-correo">ACTIVO</span>
+                    <label class="toggle-switch-wrapper" aria-label="Activar notificaciones por correo">
+                      <input type="checkbox" id="opt-notif-correo" class="toggle-switch-input" checked onchange="handleToggleOption('opt-notif-correo', 'badge-opt-correo')">
+                      <span class="toggle-switch-slider"></span>
+                    </label>
+                  </div>
+                </div>
+
+                <div class="opcion-card-row">
+                  <div class="opcion-info">
+                    <span class="opcion-titulo">Notificaciones por Mensaje SMS</span>
+                    <span class="opcion-desc">Mensajes prioritarios a tu celular registrado (+51 951 561 926) sobre el estado de participación.</span>
+                  </div>
+                  <div class="opcion-controles-der">
+                    <span class="badge-opcion-estado activo" id="badge-opt-sms">ACTIVO</span>
+                    <label class="toggle-switch-wrapper" aria-label="Activar alertas SMS">
+                      <input type="checkbox" id="opt-notif-sms" class="toggle-switch-input" checked onchange="handleToggleOption('opt-notif-sms', 'badge-opt-sms')">
+                      <span class="toggle-switch-slider"></span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Categoría 2: Sonidos y Experiencia Interactiva -->
+              <div class="opciones-grupo-card">
+                <div class="opciones-grupo-titulo">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                    <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                  </svg>
+                  <span>Sonido y Experiencia Interactiva</span>
+                </div>
+
+                <div class="opcion-card-row">
+                  <div class="opcion-info">
+                    <span class="opcion-titulo">Efectos de Sonido Interactivos</span>
+                    <span class="opcion-desc">Efectos de audio melódicos de confirmación y negación para cada botón activado y validación.</span>
+                  </div>
+                  <div class="opcion-controles-der">
+                    <button type="button" class="btn-probar-sonido" onclick="probarSonidoOpciones()" title="Escuchar sonido de prueba">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                        <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                      </svg>
+                      <span>Probar Sonido</span>
+                    </button>
+                    <span class="badge-opcion-estado activo" id="badge-opt-sonidos">ACTIVO</span>
+                    <label class="toggle-switch-wrapper" aria-label="Activar efectos sonoros">
+                      <input type="checkbox" id="opt-sonidos" class="toggle-switch-input" checked onchange="handleToggleOption('opt-sonidos', 'badge-opt-sonidos')">
+                      <span class="toggle-switch-slider"></span>
+                    </label>
+                  </div>
+                </div>
+
+                <div class="opcion-card-row">
+                  <div class="opcion-info">
+                    <span class="opcion-titulo">Efectos de Escáner Láser en QR</span>
+                    <span class="opcion-desc">Muestra el haz de escaneo láser azul con halo brillante sobre el visor de la cámara.</span>
+                  </div>
+                  <div class="opcion-controles-der">
+                    <span class="badge-opcion-estado activo" id="badge-opt-laser">ACTIVO</span>
+                    <label class="toggle-switch-wrapper" aria-label="Activar láser visual">
+                      <input type="checkbox" id="opt-laser" class="toggle-switch-input" checked onchange="handleToggleOption('opt-laser', 'badge-opt-laser')">
+                      <span class="toggle-switch-slider"></span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Categoría 3: Automatización de Comprobantes -->
+              <div class="opciones-grupo-card">
+                <div class="opciones-grupo-titulo">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                  </svg>
+                  <span>Automatización y Registro Rápido</span>
+                </div>
+
+                <div class="opcion-card-row">
+                  <div class="opcion-info">
+                    <span class="opcion-titulo">Autoguardado de Comprobantes QR</span>
+                    <span class="opcion-desc">Al detectar un código QR válido, registrarlo de forma directa y mostrar la confirmación.</span>
+                  </div>
+                  <div class="opcion-controles-der">
+                    <span class="badge-opcion-estado activo" id="badge-opt-autoguardar">ACTIVO</span>
+                    <label class="toggle-switch-wrapper" aria-label="Activar autoguardado QR">
+                      <input type="checkbox" id="opt-autoguardar" class="toggle-switch-input" checked onchange="handleToggleOption('opt-autoguardar', 'badge-opt-autoguardar')">
+                      <span class="toggle-switch-slider"></span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Categoría 4: Accesibilidad y Tamaño de Letra -->
+              <div class="opciones-grupo-card">
+                <div class="opciones-grupo-titulo">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 7V4h16v3"></path>
+                    <path d="M9 20h6"></path>
+                    <path d="M12 4v16"></path>
+                  </svg>
+                  <span>Accesibilidad y Tamaño de Letra</span>
+                </div>
+
+                <div class="opcion-card-row-vertical">
+                  <div class="opcion-info" style="max-width: 100%; margin-bottom: 12px;">
+                    <span class="opcion-titulo">Tamaño de la Fuente del Sistema</span>
+                    <span class="opcion-desc">Ajusta la escala tipográfica de comprobantes, tablas, formularios y menús para una lectura óptima.</span>
+                  </div>
+
+                  <!-- Botones de Tamaño de Letra -->
+                  <div class="selector-tamano-letra">
+                    <button type="button" class="btn-tamano-letra" id="btn-font-pequeno" onclick="cambiarTamanoLetra('pequeno', this)">
+                      <span class="tamano-icono-a" style="font-size: 13px;">A</span>
+                      <span class="tamano-label">Pequeño (90%)</span>
+                    </button>
+
+                    <button type="button" class="btn-tamano-letra activo" id="btn-font-normal" onclick="cambiarTamanoLetra('normal', this)">
+                      <span class="tamano-icono-a" style="font-size: 17px;">A</span>
+                      <span class="tamano-label">Normal (100%)</span>
+                    </button>
+
+                    <button type="button" class="btn-tamano-letra" id="btn-font-grande" onclick="cambiarTamanoLetra('grande', this)">
+                      <span class="tamano-icono-a" style="font-size: 21px;">A</span>
+                      <span class="tamano-label">Grande (115%)</span>
+                    </button>
+
+                    <button type="button" class="btn-tamano-letra" id="btn-font-muygrande" onclick="cambiarTamanoLetra('muygrande', this)">
+                      <span class="tamano-icono-a" style="font-size: 25px;">A</span>
+                      <span class="tamano-label">Muy Grande (130%)</span>
+                    </button>
+                  </div>
+
+                  <!-- Caja de muestra en vivo -->
+                  <div class="preview-tamano-caja">
+                    <div class="preview-tamano-header">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                      <span>Muestra en vivo del texto:</span>
+                    </div>
+                    <p class="preview-tamano-texto" id="preview-tamano-texto">
+                      "Lotería SUNAT: Comprobante B001 - 045940 registrado con éxito por un monto de S/. 124.80."
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <button type="submit" class="btn-guardar-custom">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              <span>GUARDAR OPCIONES</span>
+            </button>
+
+            <button type="button" class="btn-volver-custom" onclick="navigate('pantalla-principal')">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+              </svg>
+              <span>IR AL INICIO</span>
+            </button>
+          </form>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODALES GLOBALES FLOTANTES (OVERLAY A PANTALLA COMPLETA 100VW x 100VH)
+       Ubicados en la raíz del body para abarcar toda la pantalla sin restricciones
+       de escala y con centrado perfecto en cualquier resolución de monitor/dispositivo
+       ========================================================================== -->
+
+  <!-- 1. Modal: Acceso Asistido por Voz (Discapacidad y Accesibilidad) -->
+  <div id="modal-acceso-voz-wrapper" class="modal-overlay-backdrop" style="display: none;" onclick="cerrarModalAccesoVoz()">
+    <div class="modal-voz-caja" onclick="event.stopPropagation()" role="dialog" aria-modal="true" aria-label="Asistente de voz para inicio de sesión">
+      <!-- Header -->
+      <div class="modal-voz-header">
+        <div class="modal-voz-header-info">
+          <div class="modal-voz-tag-accesibilidad">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v4"></path><path d="M12 16h.01"></path></svg>
+            <span>ACCESIBILIDAD UNIVERSAL SUNAT</span>
+          </div>
+          <h3 class="modal-voz-titulo">Acceso Asistido por Voz</h3>
+          <p class="modal-voz-sub">Diseñado para personas con discapacidad visual, motriz o adultos mayores.</p>
+        </div>
+        <button type="button" class="modal-voz-btn-cerrar" onclick="cerrarModalAccesoVoz()" aria-label="Cerrar modal de voz">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+
+      <!-- Body -->
+      <div class="modal-voz-body">
+        <!-- Indicador de audio / micrófono con pulsos expansivos -->
+        <div class="voz-microfono-circulo-wrap">
+          <div class="onda-expansiva onda-1"></div>
+          <div class="onda-expansiva onda-2"></div>
+          <button type="button" class="btn-microfono-principal" id="btn-mic-voz" onclick="toggleVozEscucha()" aria-label="Presione para activar o pausar reconocimiento de voz">
+            <svg id="svg-mic-icon" width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+              <line x1="12" y1="19" x2="12" y2="23"></line>
+              <line x1="8" y1="23" x2="16" y2="23"></line>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Estado del asistente -->
+        <div class="voz-estado-badge" id="voz-estado-badge">
+          <span class="voz-dot-pulso"></span>
+          <span id="voz-estado-texto">Escuchando... Diga su DNI o "Ingresar"</span>
+        </div>
+
+        <!-- Ecualizador de ondas de sonido -->
+        <div class="voz-ecualizador-barras" id="voz-ecualizador">
+          <span class="barra-eq eq-1"></span>
+          <span class="barra-eq eq-2"></span>
+          <span class="barra-eq eq-3"></span>
+          <span class="barra-eq eq-4"></span>
+          <span class="barra-eq eq-5"></span>
+          <span class="barra-eq eq-6"></span>
+          <span class="barra-eq eq-7"></span>
+          <span class="barra-eq eq-8"></span>
+          <span class="barra-eq eq-9"></span>
+        </div>
+
+        <!-- Caja de transcripción y diálogo asistido -->
+        <div class="voz-transcripcion-caja">
+          <div class="voz-mensaje-asistente">
+            <span class="voz-rol-label">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+              Asistente SUNAT:
+            </span>
+            <p id="voz-txt-asistente">"Bienvenido al acceso asistido por voz. Por favor, diga su DNI en voz alta o presione el botón de simulación abajo."</p>
+          </div>
+          <div class="voz-mensaje-usuario" id="voz-caja-usuario" style="display: none;">
+            <span class="voz-rol-label">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+              Voz detectada:
+            </span>
+            <p id="voz-txt-usuario">"DNI 72158118, ingresar"</p>
+          </div>
+        </div>
+
+        <!-- Barra de comandos rápidos para la simulación -->
+        <div class="voz-acciones-grid">
+          <button type="button" class="btn-voz-simular" onclick="ejecutarComandoVozSimulado('72158118')">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+            <span>Simular: "DNI 72158118 - Ingresar"</span>
+          </button>
+          <button type="button" class="btn-voz-repetir" onclick="repetirInstruccionVoz()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+            <span>Escuchar Instrucciones</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Modal: Detalles Completos del Comprobante (Ficha de Consulta) -->
+  <div id="modal-detalle-wrapper" class="modal-overlay-backdrop" style="display: none;" onclick="cerrarModalDetalle()">
+    <div class="modal-detalle-img1-caja" onclick="event.stopPropagation()" role="dialog" aria-modal="true" aria-label="Detalles del comprobante">
+      <div class="modal-detalle-img1-header">
+        <button type="button" class="modal-detalle-img1-btn-x" onclick="cerrarModalDetalle()" aria-label="Cerrar modal">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#083A62" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-detalle-img1-body">
+        <div class="modal-detalle-img1-titulo-bar">
+          <div class="modal-detalle-linea-decor"></div>
+          <h2 class="modal-detalle-img1-titulo">DATOS DEL COMPROBANTE</h2>
+          <div class="modal-detalle-linea-decor"></div>
+        </div>
+
+        <div class="modal-detalle-grid">
+          <!-- Columna Izquierda -->
+          <div>
+            <div class="modal-detalle-campo">
+              <strong>Serie del Comprobante: </strong><span id="det-serie">B001</span>
+            </div>
+            <div class="modal-detalle-campo">
+              <strong>Número del Comprobante: </strong><span id="det-numero">045940</span>
+            </div>
+            <div class="modal-detalle-campo">
+              <strong>RUC del Emisor: </strong><span id="det-ruc">20458395010</span>
+            </div>
+            <div class="modal-detalle-campo">
+              <strong>Tipo de Comprobante: </strong><span id="det-tipo">Boleta de Ventas</span>
+            </div>
+            <div class="modal-detalle-campo">
+              <strong>Fecha de Emisión: </strong><span id="det-fecha">10/05/2026</span>
+            </div>
+          </div>
+
+          <!-- Columna Derecha -->
+          <div>
+            <div class="modal-detalle-campo">
+              <strong>Empresa: </strong><span id="det-empresa">Innovatech.S.A</span>
+            </div>
+            <div class="modal-detalle-campo">
+              <strong>Monto: </strong><span id="det-monto">S/. 124.80</span>
+            </div>
+            <div class="modal-detalle-campo" style="display: flex; align-items: center; gap: 12px; margin-top: 6px;">
+              <strong>Estado: </strong>
+              <span id="det-estado-badge" class="pildora-estado pildora-verde">Registrado</span>
+            </div>
+
+            <button type="button" class="btn-imprimir btn-imprimir-comprobante-img1" onclick="imprimirComprobante()" title="Descargar comprobante en formato PDF">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              <span>DESCARGAR COMPROBANTE PDF</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Modal: Confirmación de Eliminación de Comprobante -->
+  <div id="modal-confirm-eliminar-wrapper" class="modal-overlay-backdrop" style="display: none;" onclick="cerrarConfirmEliminar()">
+    <div class="modal-confirm-eliminar-caja" onclick="event.stopPropagation()" role="dialog" aria-modal="true" aria-label="Confirmar eliminación">
+      <div class="modal-confirm-icono-rojo">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#B13030" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="3 6 5 6 21 6"></polyline>
+          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+        </svg>
+      </div>
+      <h3 class="modal-confirm-titulo">¿Eliminar comprobante?</h3>
+      <p class="modal-confirm-desc" id="modal-confirm-texto">¿Desea eliminar este comprobante del registro del sorteo?</p>
+      <div class="modal-confirm-botones">
+        <button type="button" class="btn-confirm-cancelar" onclick="cerrarConfirmEliminar()">Cancelar</button>
+        <button type="button" class="btn-confirm-eliminar" onclick="confirmarEliminarComprobante()">Eliminar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. Modal: Visualización Total del Comprobante (Factura Impresa con Ítems y QR) -->
+  <div id="modal-factura-full-wrapper" class="modal-overlay-backdrop" style="display: none;" onclick="cerrarModalFacturaFull()">
+    <div class="modal-full-comprobante-caja" onclick="event.stopPropagation()" role="dialog" aria-modal="true" aria-label="Visualización total del comprobante">
+      <!-- Barra superior azul con botón X blanco -->
+      <div class="modal-full-header">
+        <button type="button" class="modal-full-btn-cerrar" onclick="cerrarModalFacturaFull()" aria-label="Cerrar vista total">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#083A62" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Contenido del modal -->
+      <div class="modal-full-body">
+        <h2 class="modal-full-titulo">VISUALIZACIÓN TOTAL DEL COMPROBANTE</h2>
+
+        <div class="factura-full-documento">
+          <!-- Encabezado emisor y caja RUC -->
+          <div class="factura-head-grid">
+            <div class="factura-emisor">
+              <h4>SOLUCIONES DIGITALES S.A.C.</h4>
+              <p>
+                Dirección: Av. Javier Prado Este 456, Int. 801, San Isidro, Lima<br>
+                Teléfono: (01) 456-7890 | Email: contacto@solucionesdigitales.pe<br>
+                Web: www.solucionesdigitales.pe
+              </p>
+            </div>
+
+            <div class="factura-box-ruc">
+              <h5>R.U.C. N° 20601234567</h5>
+              <div class="factura-box-banner">BOLETA DE VENTA ELECTRÓNICA</div>
+              <div class="factura-box-numero" id="modal-doc-numero">B001 - 00004829</div>
+            </div>
+          </div>
+
+          <!-- Datos del cliente y emisión -->
+          <div class="factura-datos-cliente">
+            <div>
+              <span><strong>CLIENTE: </strong>GARCÍA PÉREZ, CARLOS ALBERTO</span><br>
+              <span><strong>DNI / C.E.: </strong>45891234</span><br>
+              <span><strong>DIRECCIÓN: </strong>Calle Los Pinos 123, Miraflores, Lima</span><br>
+              <span><strong>COND. PAGO: </strong>Contado (Tarjeta de Crédito)</span>
+            </div>
+            <div>
+              <span><strong>FECHA EMISIÓN: </strong>24/10/2026</span><br>
+              <span><strong>FECHA VENC.: </strong>24/10/2026</span><br>
+              <span><strong>MONEDA: </strong>SOLES (S/)</span><br>
+              <span><strong>GUÍA REMISIÓN: </strong>-</span>
+            </div>
+          </div>
+
+          <!-- Tabla de Items completa -->
+          <table class="factura-tabla-items">
+            <thead>
+              <tr>
+                <th style="width: 50px;">ITEM</th>
+                <th style="width: 70px;">CANT.</th>
+                <th style="width: 60px;">U.M.</th>
+                <th>DESCRIPCIÓN</th>
+                <th style="width: 90px; text-align: right;">P. UNIT</th>
+                <th style="width: 90px; text-align: right;">IMPORTE</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td>1.00</td>
+                <td>ZZ</td>
+                <td>Licencia de Software SaaS - Plan Pro (Suscripción Mensual)</td>
+                <td style="text-align: right;">120.00</td>
+                <td style="text-align: right;">120.00</td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td>2.00</td>
+                <td>NIU</td>
+                <td>Servicio de Configuración e Integración Inicial API</td>
+                <td style="text-align: right;">85.00</td>
+                <td style="text-align: right;">170.00</td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td>1.00</td>
+                <td>ZZ</td>
+                <td>Soporte Técnico Prioritario 24/7 (Bolsa de 5 horas)</td>
+                <td style="text-align: right;">250.00</td>
+                <td style="text-align: right;">250.00</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- Parte inferior: Monto en letras y desglose de totales -->
+          <div class="factura-bottom-grid">
+            <div class="factura-bottom-izq">
+              <div class="factura-son-letras">
+                SON: CINCUENTA Y CUATRO CON 00/100 SOLES
+              </div>
+              <div class="factura-info-extra">
+                <strong>INFORMACIÓN ADICIONAL</strong><br>
+                • Forma de Pago: Contado / Vía Pasarela Web<br>
+                • Transacción Op: 984512039<br>
+                • Representación impresa de la Boleta de Venta Electrónica.
+              </div>
+            </div>
+
+            <div class="factura-bottom-der">
+              <div class="factura-fila-total">
+                <span>OP. GRAVADA:</span>
+                <span>S/ 457.63</span>
+              </div>
+              <div class="factura-fila-total">
+                <span>OP. INAFECTA:</span>
+                <span>S/ 0.00</span>
+              </div>
+              <div class="factura-fila-total">
+                <span>OP. EXONERADA:</span>
+                <span>S/ 0.00</span>
+              </div>
+              <div class="factura-fila-total">
+                <span>I.G.V. (18%):</span>
+                <span>S/ 82.37</span>
+              </div>
+              <div class="factura-total-destacado">
+                <span>IMPORTE TOTAL:</span>
+                <span id="modal-doc-total">S/ 540.00</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- QR y validez legal -->
+          <div class="factura-legal-qr">
+            <div>
+              Representación impresa de la <strong>BOLETA DE VENTA ELECTRÓNICA</strong><br>
+              Consulte la validez de este comprobante en el portal SUNAT con el código Hash o escaneando el código QR.<br>
+              <span style="font-family: monospace; color: #888;">Hash: 4aF89qL1k99ZMfbvQphfzRhlkYTgtiNmFhYjO0ZD8</span>
+            </div>
+            <div>
+              <svg width="60" height="60" viewBox="0 0 24 24" fill="#000000">
+                <path d="M2 2h8v8H2V2zm2 2v4h4V4H4zm10-2h8v8h-8V2zm2 2v4h4V4h-4zM2 14h8v8H2v-8zm2 2v4h4v-4H4zm12-2h2v2h-2v-2zm4 0h2v2h-2v-2zm-4 4h2v4h-2v-4zm4 2h2v2h-2v-2zm-2 2h4v2h-4v-2z"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Biblioteca jsPDF local para descarga instantánea de comprobantes en PDF -->
+  <script src="./assets/jspdf.umd.min.js"></script>
+
+  <!-- Script principal con navegación, audio y validaciones -->
+  <script src="./app.js"></script>
+</body>
+</html>
