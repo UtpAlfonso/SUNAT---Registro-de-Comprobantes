@@ -409,6 +409,10 @@ function navigate(targetId) {
       AppState.activeScreen = targetId;
       autoScale();
       window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      if (targetId === 'pantalla-principal') {
+        setTimeout(() => iniciarTourGuiado(false), 420);
+      }
     }, 120);
   } else {
     targetStage.style.display = 'block';
@@ -416,6 +420,10 @@ function navigate(targetId) {
     targetStage.style.opacity = '1';
     AppState.activeScreen = targetId;
     autoScale();
+
+    if (targetId === 'pantalla-principal') {
+      setTimeout(() => iniciarTourGuiado(false), 420);
+    }
   }
 }
 
@@ -1882,9 +1890,236 @@ function handleCambiarClaveSubmit(event) {
 }
 
 /* ==========================================================================
+   TOUR GUIADO DE BIENVENIDA (PRIMERA VEZ EN EL SISTEMA)
+   ========================================================================== */
+const TOUR_PASOS = [
+  {
+    selector: '#pantalla-principal .kpi-resumen-strip',
+    titulo: 'Resumen de tu Participación',
+    descripcion: 'Visualiza en tiempo real cuántos comprobantes has registrado, el monto acumulado y tus tickets activos para el próximo sorteo nacional.'
+  },
+  {
+    selector: '#pantalla-principal .btn-kpi-qr-rapido',
+    titulo: 'Escaneo Rápido con Código QR',
+    descripcion: '¿Tienes una boleta o recibo a la mano? Escanea su código QR directamente con tu cámara para registrarlo al instante.'
+  },
+  {
+    selector: '#card-menu-registrar',
+    titulo: 'Registrar Comprobantes',
+    descripcion: 'Ingresa tus boletas de venta o recibos por honorarios de forma manual o mediante QR para sumar más opciones en el sorteo.'
+  },
+  {
+    selector: '#card-menu-consultar',
+    titulo: 'Mis Comprobantes',
+    descripcion: 'Consulta tu historial completo, filtra por tipo o estado, revisa el detalle de cada boleta y descarga una copia en PDF.'
+  },
+  {
+    selector: '#card-menu-opciones',
+    titulo: 'Mis Opciones y Accesibilidad',
+    descripcion: 'Personaliza las notificaciones, los efectos de sonido y el tamaño de la letra para adaptar la plataforma a tu comodidad.'
+  },
+  {
+    selector: '#card-menu-datos',
+    titulo: 'Mis Datos y Seguridad',
+    descripcion: 'Verifica tu información de participante registrada en SUNAT y actualiza tu contraseña cuando lo necesites.'
+  }
+];
+
+let tourPasoActual = 0;
+let tourActivo = false;
+let tourVozActiva = true;
+
+function actualizarIconoVozTour() {
+  const btn = document.getElementById('tour-btn-voz');
+  if (!btn) return;
+  const iconOn = btn.querySelector('.tour-voz-on');
+  const iconOff = btn.querySelector('.tour-voz-off');
+  if (tourVozActiva) {
+    btn.classList.add('activo');
+    if (iconOn) iconOn.style.display = 'block';
+    if (iconOff) iconOff.style.display = 'none';
+  } else {
+    btn.classList.remove('activo');
+    if (iconOn) iconOn.style.display = 'none';
+    if (iconOff) iconOff.style.display = 'block';
+  }
+}
+
+function toggleVozTour() {
+  tourVozActiva = !tourVozActiva;
+  actualizarIconoVozTour();
+  playSound('toggle');
+
+  if (!tourVozActiva) {
+    if ('speechSynthesis' in window) {
+      try { window.speechSynthesis.cancel(); } catch (e) {}
+    }
+  } else if (tourActivo) {
+    const paso = TOUR_PASOS[tourPasoActual];
+    if (paso) {
+      hablarTexto(`${paso.titulo}. ${paso.descripcion}`);
+    }
+  }
+}
+
+function iniciarTourGuiado(forzar = false) {
+  if (AppState.activeScreen !== 'pantalla-principal') return;
+
+  if (!forzar) {
+    try {
+      if (localStorage.getItem('sunat_tour_completado') === 'true') {
+        return;
+      }
+    } catch (e) {}
+  }
+
+  const overlay = document.getElementById('tour-guiado-overlay');
+  if (!overlay) return;
+
+  tourPasoActual = 0;
+  tourActivo = true;
+  actualizarIconoVozTour();
+  overlay.style.display = 'block';
+  playSound('modalOpen');
+  renderPasoTour(true);
+}
+
+function renderPasoTour(hablar = true) {
+  if (!tourActivo) return;
+
+  const paso = TOUR_PASOS[tourPasoActual];
+  const target = document.querySelector(paso.selector);
+  const spotlight = document.getElementById('tour-spotlight');
+  const popover = document.getElementById('tour-popover');
+  const pasoTexto = document.getElementById('tour-paso-texto');
+  const tituloEl = document.getElementById('tour-titulo');
+  const descEl = document.getElementById('tour-descripcion');
+  const dotsEl = document.getElementById('tour-dots');
+  const btnPrev = document.getElementById('tour-btn-anterior');
+  const btnNext = document.getElementById('tour-btn-siguiente');
+
+  if (!target || !spotlight || !popover) return;
+
+  // Actualizar textos e indicadores
+  if (pasoTexto) pasoTexto.textContent = `Paso ${tourPasoActual + 1} de ${TOUR_PASOS.length}`;
+  if (tituloEl) tituloEl.textContent = paso.titulo;
+  if (descEl) descEl.textContent = paso.descripcion;
+
+  if (dotsEl) {
+    dotsEl.innerHTML = TOUR_PASOS.map((_, idx) =>
+      `<span class="tour-dot ${idx === tourPasoActual ? 'activo' : ''}"></span>`
+    ).join('');
+  }
+
+  if (btnPrev) {
+    btnPrev.disabled = tourPasoActual === 0;
+  }
+  if (btnNext) {
+    btnNext.textContent = tourPasoActual === TOUR_PASOS.length - 1 ? '¡Entendido!' : 'Siguiente';
+  }
+
+  // Calcular coordenadas reales en pantalla (ya incluyen el escalado de #stage-viewport)
+  const rect = target.getBoundingClientRect();
+  const pad = 8;
+  const spotTop = Math.max(8, rect.top - pad);
+  const spotLeft = Math.max(8, rect.left - pad);
+  const spotWidth = rect.width + pad * 2;
+  const spotHeight = rect.height + pad * 2;
+
+  spotlight.style.top = `${spotTop}px`;
+  spotlight.style.left = `${spotLeft}px`;
+  spotlight.style.width = `${spotWidth}px`;
+  spotlight.style.height = `${spotHeight}px`;
+
+  // Posicionar popover de forma inteligente sin salirse del viewport
+  const popRect = popover.getBoundingClientRect();
+  const popW = popRect.width || 360;
+  const popH = popRect.height || 210;
+  const winW = window.innerWidth;
+  const winH = window.innerHeight;
+  const gap = 14;
+
+  let top = spotTop + spotHeight + gap;
+  let left = spotLeft + (spotWidth / 2) - (popW / 2);
+
+  // Si no cabe abajo, intentar arriba
+  if (top + popH > winH - 16) {
+    const topArriba = spotTop - popH - gap;
+    if (topArriba >= 16) {
+      top = topArriba;
+    } else {
+      top = Math.max(16, winH - popH - 16);
+    }
+  }
+
+  // Ajustar horizontalmente dentro de los márgenes de la ventana
+  if (left < 16) left = 16;
+  if (left + popW > winW - 16) left = Math.max(16, winW - popW - 16);
+
+  popover.style.top = `${top}px`;
+  popover.style.left = `${left}px`;
+
+  if (hablar && tourVozActiva) {
+    hablarTexto(`${paso.titulo}. ${paso.descripcion}`);
+  }
+}
+
+function avanzarPasoTour() {
+  if (!tourActivo) return;
+  playSound('click');
+  if (tourPasoActual < TOUR_PASOS.length - 1) {
+    tourPasoActual++;
+    renderPasoTour(true);
+  } else {
+    finalizarTourGuiado();
+  }
+}
+
+function retrocederPasoTour() {
+  if (!tourActivo || tourPasoActual <= 0) return;
+  playSound('click');
+  tourPasoActual--;
+  renderPasoTour(true);
+}
+
+function finalizarTourGuiado() {
+  if (!tourActivo) return;
+  tourActivo = false;
+  playSound('modalClose');
+
+  if ('speechSynthesis' in window) {
+    try { window.speechSynthesis.cancel(); } catch (e) {}
+  }
+
+  const overlay = document.getElementById('tour-guiado-overlay');
+  if (overlay) {
+    overlay.style.display = 'none';
+  }
+
+  try {
+    localStorage.setItem('sunat_tour_completado', 'true');
+  } catch (e) {}
+}
+
+/* ==========================================================================
    ATAJOS DE TECLADO Y ACCESIBILIDAD
    ========================================================================== */
 window.addEventListener('keydown', (ev) => {
+  if (tourActivo) {
+    if (ev.key === 'Escape') {
+      finalizarTourGuiado();
+      return;
+    }
+    if (ev.key === 'ArrowRight') {
+      avanzarPasoTour();
+      return;
+    }
+    if (ev.key === 'ArrowLeft') {
+      retrocederPasoTour();
+      return;
+    }
+  }
+
   if (ev.key === 'Escape') {
     const modalVoz = document.getElementById('modal-acceso-voz-wrapper');
     if (modalVoz && modalVoz.style.display === 'flex') {
@@ -1917,10 +2152,18 @@ window.addEventListener('keydown', (ev) => {
    ========================================================================== */
 window.addEventListener('resize', () => {
   autoScale();
+  if (tourActivo) {
+    renderPasoTour(false);
+  }
 });
 
 window.addEventListener('orientationchange', () => {
-  setTimeout(autoScale, 100);
+  setTimeout(() => {
+    autoScale();
+    if (tourActivo) {
+      renderPasoTour(false);
+    }
+  }, 100);
 });
 
 // Restaurar tamaño de letra persistido al cargar

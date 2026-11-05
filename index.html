@@ -14,7 +14,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
-  <link rel="icon" href="./assets/icono sunat.png" type="image/x-icon">
+
   <!-- Hoja de estilos -->
   <link rel="stylesheet" href="./styles.css">
 </head>
@@ -578,8 +578,18 @@
           </button>
         </div>
 
+        <!-- Botón discreto para volver a abrir el Tour Guiado en cualquier momento -->
+        <button type="button" class="btn-reabrir-tour" onclick="iniciarTourGuiado(true)" title="Ver recorrido guiado por las funciones principales">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          </svg>
+          <span>Tour Guiado</span>
+        </button>
+
         <!-- Fila 1 de Tarjetas -->
-        <div class="card-menu" style="left: 130px; top: 290px; height: 232px;" onclick="navigate('pantalla-registrar')">
+        <div id="card-menu-registrar" class="card-menu" style="left: 130px; top: 290px; height: 232px;" onclick="navigate('pantalla-registrar')">
           <div class="card-menu-stripe" style="background-color: var(--azul);"></div>
           <h3 class="card-menu-title">Registrar<br>Comprobantes</h3>
           <div class="card-menu-icon">
@@ -597,7 +607,7 @@
           </div>
         </div>
 
-        <div class="card-menu" style="left: 481px; top: 290px; height: 232px;" onclick="navigate('pantalla-consultar')">
+        <div id="card-menu-consultar" class="card-menu" style="left: 481px; top: 290px; height: 232px;" onclick="navigate('pantalla-consultar')">
           <div class="card-menu-stripe" style="background-color: var(--naranja);"></div>
           <h3 class="card-menu-title">Mis<br>Comprobantes</h3>
           <div class="card-menu-icon">
@@ -614,7 +624,7 @@
           </div>
         </div>
 
-        <div class="card-menu" style="left: 832px; top: 290px; height: 232px;" onclick="navigate('pantalla-opciones')">
+        <div id="card-menu-opciones" class="card-menu" style="left: 832px; top: 290px; height: 232px;" onclick="navigate('pantalla-opciones')">
           <div class="card-menu-stripe" style="background-color: var(--fucsia);"></div>
           <h3 class="card-menu-title">Mis<br>Opciones</h3>
           <div class="card-menu-icon">
@@ -631,7 +641,7 @@
         </div>
 
         <!-- Fila 2 de Tarjetas -->
-        <div class="card-menu" style="left: 130px; top: 540px; height: 232px;" onclick="navigate('pantalla-mis-datos')">
+        <div id="card-menu-datos" class="card-menu" style="left: 130px; top: 540px; height: 232px;" onclick="navigate('pantalla-mis-datos')">
           <div class="card-menu-stripe" style="background-color: var(--celeste);"></div>
           <h3 class="card-menu-title">Mis<br>Datos</h3>
           <div class="card-menu-icon">
@@ -647,7 +657,7 @@
           </div>
         </div>
 
-        <div class="card-menu" style="left: 481px; top: 540px; height: 232px;" onclick="navigate('pantalla-cambiar-clave')">
+        <div id="card-menu-clave" class="card-menu" style="left: 481px; top: 540px; height: 232px;" onclick="navigate('pantalla-cambiar-clave')">
           <div class="card-menu-stripe" style="background-color: var(--verde);"></div>
           <h3 class="card-menu-title">Cambiar<br>Clave</h3>
           <div class="card-menu-icon">
@@ -664,7 +674,7 @@
           </div>
         </div>
 
-        <div class="card-menu" style="left: 832px; top: 540px; height: 232px;" onclick="cerrarSesion()">
+        <div id="card-menu-salir" class="card-menu" style="left: 832px; top: 540px; height: 232px;" onclick="cerrarSesion()">
           <div class="card-menu-stripe" style="background-color: var(--rojo);"></div>
           <h3 class="card-menu-title">Cerrar<br>Sesión</h3>
           <div class="card-menu-icon">
@@ -2005,6 +2015,53 @@
               </svg>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       COMPONENTE: TOUR GUIADO DE BIENVENIDA (PRIMERA VEZ EN EL SISTEMA)
+       ========================================================================== -->
+  <div id="tour-guiado-overlay" class="tour-guiado-overlay" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="tour-titulo">
+    <div id="tour-spotlight" class="tour-spotlight"></div>
+
+    <div id="tour-popover" class="tour-popover">
+      <div class="tour-popover-header">
+        <span class="tour-paso-texto" id="tour-paso-texto">Paso 1 de 6</span>
+        <div class="tour-header-acciones">
+          <button type="button" class="tour-btn-voz activo" id="tour-btn-voz" onclick="toggleVozTour()" aria-label="Silenciar o activar voz del tour" title="Activar o silenciar narración por voz">
+            <svg class="tour-voz-on" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+            </svg>
+            <svg class="tour-voz-off" style="display: none;" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+              <line x1="23" y1="9" x2="17" y2="15"></line>
+              <line x1="17" y1="9" x2="23" y2="15"></line>
+            </svg>
+          </button>
+          <button type="button" class="tour-btn-cerrar" onclick="finalizarTourGuiado()" aria-label="Cerrar tour guiado" title="Cerrar recorrido">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="tour-popover-body">
+        <h3 class="tour-titulo" id="tour-titulo">Resumen de Participación</h3>
+        <p class="tour-descripcion" id="tour-descripcion">Aquí puedes ver tus comprobantes registrados, el monto acumulado y tus tickets activos para el sorteo.</p>
+      </div>
+
+      <div class="tour-dots" id="tour-dots" aria-hidden="true"></div>
+
+      <div class="tour-popover-footer">
+        <button type="button" class="tour-btn-omitir" onclick="finalizarTourGuiado()">Omitir</button>
+        <div class="tour-nav-botones">
+          <button type="button" class="tour-btn-anterior" id="tour-btn-anterior" onclick="retrocederPasoTour()">Anterior</button>
+          <button type="button" class="tour-btn-siguiente" id="tour-btn-siguiente" onclick="avanzarPasoTour()">Siguiente</button>
         </div>
       </div>
     </div>

@@ -136,7 +136,7 @@ body {
   left: 455px;
   top: 10px;
   width: 370px;
-  height: 80px;
+  height: 100px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -146,7 +146,7 @@ body {
 
 .sunat-logo-top img {
   width: 370px;
-  height: 150px;
+  height: 140px;
   display: block;
   user-select: none;
 }
@@ -316,7 +316,7 @@ button:focus-visible {
   border-top-left-radius: 16px;
   border-top-right-radius: 16px;
   text-align: center;
-  padding-top: 26px;
+  padding-top: 16px;
 }
 
 .login-header-title {
@@ -4048,7 +4048,247 @@ body[data-font-size="muygrande"] .notif-subtitulo { font-size: 17px !important; 
   .stage:not(#pantalla-consultar) {
     display: none !important;
   }
-  .modal-overlay-backdrop, .notif-card-flotante, .sunat-logo-top, .barra-accesibilidad-rapida {
+  .modal-overlay-backdrop, .notif-card-flotante, .sunat-logo-top, .barra-accesibilidad-rapida, .tour-guiado-overlay, .btn-reabrir-tour {
     display: none !important;
   }
 }
+
+/* ==========================================================================
+   COMPONENTE: TOUR GUIADO DE BIENVENIDA (PRIMERA VEZ EN EL SISTEMA)
+   ========================================================================== */
+.btn-reabrir-tour {
+  position: absolute;
+  left: 130px;
+  top: 34px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 14px;
+  background: #FFFFFF;
+  color: var(--azul);
+  border: 1px solid #CBD5E1;
+  border-radius: 8px;
+  font-family: var(--fuente-principal);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(8, 58, 98, 0.08);
+  transition: transform 0.16s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.16s ease, box-shadow 0.16s ease;
+  z-index: 20;
+  white-space: nowrap;
+}
+
+.btn-reabrir-tour:hover {
+  background-color: #F0F7FF;
+  border-color: var(--celeste);
+  box-shadow: 0 4px 12px rgba(8, 58, 98, 0.14);
+  transform: translateY(-1px);
+}
+
+.btn-reabrir-tour:active {
+  transform: translateY(0);
+}
+
+.tour-guiado-overlay {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 999990;
+  pointer-events: auto;
+}
+
+.tour-guiado-overlay[style*="display: none"] {
+  display: none !important;
+}
+
+.tour-spotlight {
+  position: fixed;
+  border-radius: 14px;
+  box-shadow: 0 0 0 9999px rgba(15, 23, 42, 0.72), 0 0 0 3px #55AEE6, 0 0 24px rgba(85, 174, 230, 0.55);
+  pointer-events: none;
+  transition: top 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+              left 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+              width 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+              height 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 999991;
+}
+
+.tour-popover {
+  position: fixed;
+  width: 360px;
+  max-width: calc(100vw - 32px);
+  background: #FFFFFF;
+  border-radius: 14px;
+  box-shadow: 0 20px 50px rgba(8, 58, 98, 0.38);
+  border: 1px solid #D6E4F0;
+  overflow: hidden;
+  z-index: 999992;
+  transition: top 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+              left 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: modalEntradaPop 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.tour-popover-header {
+  background: linear-gradient(135deg, var(--azul) 0%, #0F4E85 100%);
+  color: #FFFFFF;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tour-paso-texto {
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  color: #B2D8F7;
+  font-variant-numeric: tabular-nums;
+}
+
+.tour-header-acciones {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tour-btn-voz,
+.tour-btn-cerrar {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.16);
+  color: #FFFFFF;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.tour-btn-voz:hover,
+.tour-btn-cerrar:hover {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.tour-popover-body {
+  padding: 18px 20px 12px;
+}
+
+.tour-titulo {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--azul);
+  margin-bottom: 8px;
+  line-height: 1.25;
+}
+
+.tour-descripcion {
+  font-size: 14px;
+  font-weight: 400;
+  color: #334155;
+  line-height: 1.48;
+}
+
+.tour-dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 4px 20px 12px;
+}
+
+.tour-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #CBD5E1;
+  transition: width 0.2s ease, background-color 0.2s ease;
+}
+
+.tour-dot.activo {
+  width: 20px;
+  border-radius: 4px;
+  background: var(--azul);
+}
+
+.tour-popover-footer {
+  padding: 12px 18px 16px;
+  background: #F8FAFC;
+  border-top: 1px solid #E2E8F0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.tour-btn-omitir {
+  background: transparent;
+  border: none;
+  color: #64748B;
+  font-family: var(--fuente-principal);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 6px 8px;
+  border-radius: 6px;
+  transition: color 0.15s ease, background-color 0.15s ease;
+  white-space: nowrap;
+}
+
+.tour-btn-omitir:hover {
+  color: #0F172A;
+  background: #E2E8F0;
+}
+
+.tour-nav-botones {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tour-btn-anterior {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid #CBD5E1;
+  background: #FFFFFF;
+  color: #334155;
+  font-family: var(--fuente-principal);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+  white-space: nowrap;
+}
+
+.tour-btn-anterior:hover:not(:disabled) {
+  background: #F1F5F9;
+  border-color: #94A3B8;
+}
+
+.tour-btn-anterior:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.tour-btn-siguiente {
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: none;
+  background: var(--azul);
+  color: #FFFFFF;
+  font-family: var(--fuente-principal);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(8, 58, 98, 0.25);
+  transition: background-color 0.15s ease, transform 0.15s ease;
+  white-space: nowrap;
+}
+
+.tour-btn-siguiente:hover {
+  background: #0B4D82;
+  transform: translateY(-1px);
+}
+
