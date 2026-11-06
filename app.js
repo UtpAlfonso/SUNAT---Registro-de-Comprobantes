@@ -893,12 +893,14 @@ function handleRegistrarComprobante(event) {
   document.getElementById('mini-ruc-num').textContent = `${serie} - ${numero}`;
   document.getElementById('modal-doc-numero').textContent = `${serie} - ${numero}`;
 
+  notificarEnvioCorreoComprobante();
+
   playSound('success');
   mostrarNotificacion({
     tipo: 'verde',
     titulo: 'Comprobante Registrado',
-    subtitulo: 'Participación registrada con éxito en el sorteo',
-    duracion: 3200
+    subtitulo: 'Constancia enviada a valentinohernandez27@gmail.com',
+    duracion: 3600
   });
 
   navigate('pantalla-registrado');
@@ -968,14 +970,65 @@ function simularLecturaQR() {
   document.getElementById('mini-ruc-num').textContent = nuevoComprobante.serieNumero;
   document.getElementById('modal-doc-numero').textContent = nuevoComprobante.serieNumero;
 
+  notificarEnvioCorreoComprobante();
+
   mostrarNotificacion({
     tipo: 'verde',
     titulo: 'Código QR Escaneado',
-    subtitulo: 'Comprobante verificado con SUNAT',
-    duracion: 3200
+    subtitulo: 'Verificado con SUNAT y enviado a valentinohernandez27@gmail.com',
+    duracion: 3600
   });
 
   navigate('pantalla-registrado');
+}
+
+function notificarEnvioCorreoComprobante() {
+  const correoDestino = (AppState.usuarioActual && AppState.usuarioActual.correo)
+    ? AppState.usuarioActual.correo
+    : 'valentinohernandez27@gmail.com';
+  const elDestino = document.getElementById('reg-correo-destino');
+  const elEstado = document.getElementById('reg-correo-estado');
+  const btnReenviar = document.getElementById('btn-reenviar-correo');
+
+  if (elDestino) elDestino.textContent = correoDestino;
+  if (elEstado) {
+    elEstado.textContent = 'Enviado';
+    elEstado.classList.remove('enviando');
+  }
+  if (btnReenviar) {
+    btnReenviar.disabled = false;
+  }
+}
+
+function reenviarConfirmacionCorreo() {
+  playSound('toggle');
+  const correoDestino = (AppState.usuarioActual && AppState.usuarioActual.correo)
+    ? AppState.usuarioActual.correo
+    : 'valentinohernandez27@gmail.com';
+  const elEstado = document.getElementById('reg-correo-estado');
+  const btnReenviar = document.getElementById('btn-reenviar-correo');
+
+  if (btnReenviar) btnReenviar.disabled = true;
+  if (elEstado) {
+    elEstado.textContent = 'Enviando...';
+    elEstado.classList.add('enviando');
+  }
+
+  setTimeout(() => {
+    if (elEstado) {
+      elEstado.textContent = 'Enviado';
+      elEstado.classList.remove('enviando');
+    }
+    if (btnReenviar) btnReenviar.disabled = false;
+
+    playSound('success');
+    mostrarNotificacion({
+      tipo: 'verde',
+      titulo: 'Correo Reenviado',
+      subtitulo: `Constancia enviada nuevamente a ${correoDestino}`,
+      duracion: 3200
+    });
+  }, 550);
 }
 
 /* ==========================================================================
@@ -2100,6 +2153,13 @@ function finalizarTourGuiado() {
     localStorage.setItem('sunat_tour_completado', 'true');
   } catch (e) {}
 }
+
+window.iniciarTourGuiado = iniciarTourGuiado;
+window.avanzarPasoTour = avanzarPasoTour;
+window.retrocederPasoTour = retrocederPasoTour;
+window.finalizarTourGuiado = finalizarTourGuiado;
+window.toggleVozTour = toggleVozTour;
+window.reenviarConfirmacionCorreo = reenviarConfirmacionCorreo;
 
 /* ==========================================================================
    ATAJOS DE TECLADO Y ACCESIBILIDAD

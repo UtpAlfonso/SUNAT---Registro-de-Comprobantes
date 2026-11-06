@@ -949,6 +949,26 @@
                 </div>
               </div>
             </div>
+
+            <!-- Aviso de envío de constancia al correo electrónico -->
+            <div class="reg-correo-box" id="reg-correo-confirmacion">
+              <div class="reg-correo-icono">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                  <polyline points="22,6 12,13 2,6"></polyline>
+                </svg>
+              </div>
+              <div class="reg-correo-info">
+                <div class="reg-correo-titulo">
+                  <span>Constancia enviada por correo</span>
+                  <span class="reg-correo-estado" id="reg-correo-estado">Enviado</span>
+                </div>
+                <div class="reg-correo-destino" id="reg-correo-destino">valentinohernandez27@gmail.com</div>
+              </div>
+              <button type="button" class="reg-correo-btn-reenviar" id="btn-reenviar-correo" onclick="reenviarConfirmacionCorreo()" title="Reenviar constancia al correo">
+                Reenviar
+              </button>
+            </div>
           </div>
 
           <!-- Botones Inferiores Estilo Imagen 3 -->
@@ -2074,3 +2094,4 @@
   <script src="./app.js"></script>
 </body>
 </html>
+
